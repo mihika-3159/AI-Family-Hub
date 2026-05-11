@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: #FAFAFA;
+  color: #171717;
+}
+
+.dark {
+  background-color: #0A0A0A;
+  color: #F5F5F5;
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/70 dark:bg-brand-warm-900/70 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-glass;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-soft hover:-translate-y-1 cursor-pointer;
+  }
+  
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-peach to-brand-lavender;
+  }
+  
+  .btn-primary {
+    @apply px-6 py-3 bg-brand-peach text-white rounded-2xl font-semibold shadow-soft hover:bg-brand-peach/90 active:scale-95 transition-all;
+  }
+  
+  .btn-secondary {
+    @apply px-6 py-3 bg-white dark:bg-brand-warm-800 text-brand-warm-700 dark:text-brand-warm-200 border border-brand-warm-200 dark:border-brand-warm-700 rounded-2xl font-semibold shadow-soft hover:bg-brand-warm-50 dark:hover:bg-brand-warm-700 active:scale-95 transition-all;
+  }
+}
+
+.onboarding-highlight {
+  @apply ring-4 ring-brand-peach ring-offset-2;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-brand-warm-100;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-brand-warm-300 rounded-full hover:bg-brand-warm-400 transition-colors;
+}
