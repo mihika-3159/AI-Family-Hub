@@ -102,4 +102,4 @@ npm run dev
 
 ---
 
-*Built with ❤️ for the Build Your Vision Hackathon 2026.*
+*Built with ❤️*
