@@ -19,11 +19,16 @@
       "dest": "backend/main.py"
     },
     {
-      "handle": "filesystem"
+      "src": "/assets/(.*)",
+      "dest": "/frontend/assets/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "frontend/index.html"
+      "src": "/favicon.svg",
+      "dest": "/frontend/favicon.svg"
+    },
+    {
+      "src": "/((?!api|assets|favicon.svg).* )",
+      "dest": "/frontend/index.html"
     }
   ]
 }
