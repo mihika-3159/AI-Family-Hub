@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Sparkles, 
-  Users, 
-  Clock, 
-  DollarSign, 
+import {
+  Sparkles,
+  Users,
+  Clock,
+  DollarSign,
   Trophy,
   Flame,
   Star,
-  ChevronRight,
   Loader2
 } from 'lucide-react';
 import api from '../lib/api';
@@ -57,7 +56,7 @@ const Bonding: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Suggestion Engine */}
         <div className="lg:col-span-2 space-y-8">
-          <div className="glass p-10 rounded-4xl relative overflow-hidden bg-gradient-to-br from-white to-brand-peach/5">
+          <div className="glass p-10 rounded-4xl relative overflow-hidden bg-gradient-to-br from-white dark:from-brand-warm-900 to-brand-peach/5">
             <div className="relative z-10">
               <h2 className="text-2xl font-bold text-brand-warm-900 mb-6">Activity Generator</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -65,7 +64,7 @@ const Bonding: React.FC = () => {
                   <label className="text-sm font-semibold text-brand-warm-700 flex items-center gap-2">
                     <Clock size={16} /> Time Available
                   </label>
-                  <select 
+                  <select
                     className="w-full px-4 py-3 bg-white border border-brand-warm-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach transition-all"
                     value={inputs.time}
                     onChange={(e) => setInputs({ ...inputs, time: parseInt(e.target.value) })}
@@ -80,7 +79,7 @@ const Bonding: React.FC = () => {
                   <label className="text-sm font-semibold text-brand-warm-700 flex items-center gap-2">
                     <DollarSign size={16} /> Budget
                   </label>
-                  <select 
+                  <select
                     className="w-full px-4 py-3 bg-white border border-brand-warm-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach transition-all"
                     value={inputs.budget}
                     onChange={(e) => setInputs({ ...inputs, budget: parseFloat(e.target.value) })}
@@ -95,16 +94,16 @@ const Bonding: React.FC = () => {
                   <label className="text-sm font-semibold text-brand-warm-700 flex items-center gap-2">
                     <Users size={16} /> Interests
                   </label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     placeholder="Games, cooking..."
-                    className="w-full px-4 py-3 bg-white border border-brand-warm-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach transition-all text-sm"
+                    className="w-full px-4 py-3 bg-white dark:bg-brand-warm-800 border border-brand-warm-100 dark:border-brand-warm-700 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach transition-all text-sm"
                     value={inputs.interests}
                     onChange={(e) => setInputs({ ...inputs, interests: e.target.value })}
                   />
                 </div>
               </div>
-              <button 
+              <button
                 onClick={generateSuggestions}
                 disabled={loading}
                 className="w-full btn-primary py-4 flex items-center justify-center gap-2 text-lg shadow-lg shadow-brand-peach/20"
@@ -116,7 +115,7 @@ const Bonding: React.FC = () => {
           </div>
 
           {suggestions && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="glass p-8 rounded-4xl bg-brand-sun/5 border-brand-sun/10"
@@ -153,7 +152,7 @@ const Bonding: React.FC = () => {
               <Trophy size={20} className="text-brand-peach" /> Weekly Challenge
             </h3>
             <div className="text-center space-y-6">
-              <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-soft mx-auto relative">
+              <div className="w-24 h-24 bg-white dark:bg-brand-warm-800 rounded-full flex items-center justify-center shadow-soft mx-auto relative">
                 <span className="text-4xl">🍕</span>
                 <div className="absolute -bottom-2 -right-2 bg-brand-sun text-white p-2 rounded-full shadow-sm">
                   <Star size={16} fill="white" />

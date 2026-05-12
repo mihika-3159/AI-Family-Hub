@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Plus, 
+import {
+  Plus,
   Sparkles,
   TrendingUp,
   BrainCircuit,
   Pill,
   Trash2,
-  Clock
+  Loader2
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import api from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 
@@ -83,15 +83,24 @@ const Care: React.FC = () => {
   };
 
   // Mock data for chart if none exists
-  const chartData = entries.length > 0 
+  const chartData = entries.length > 0
     ? [...entries].reverse().map(e => ({ name: new Date(e.date).toLocaleDateString(), mood: e.mood_score, stress: e.stress_level }))
     : [
-        { name: 'Mon', mood: 3, stress: 2 },
-        { name: 'Tue', mood: 4, stress: 1 },
-        { name: 'Wed', mood: 3, stress: 3 },
-        { name: 'Thu', mood: 5, stress: 1 },
-        { name: 'Fri', mood: 4, stress: 2 },
-      ];
+      { name: 'Mon', mood: 3, stress: 2 },
+      { name: 'Tue', mood: 4, stress: 1 },
+      { name: 'Wed', mood: 3, stress: 3 },
+      { name: 'Thu', mood: 5, stress: 1 },
+      { name: 'Fri', mood: 4, stress: 2 },
+    ];
+
+  if (loading && entries.length === 0) {
+    return (
+      <div className="h-96 flex flex-col items-center justify-center gap-4">
+        <Loader2 className="animate-spin text-brand-peach" size={48} />
+        <p className="text-brand-warm-500 font-bold">Synchronizing Family Wellbeing...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -123,14 +132,14 @@ const Care: React.FC = () => {
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorMood" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#FFB3A7" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#FFB3A7" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#FFB3A7" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#FFB3A7" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#A3A3A3', fontSize: 12}} dy={10} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#A3A3A3', fontSize: 12 }} dy={10} />
                 <YAxis hide domain={[0, 6]} />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}
                 />
                 <Area type="monotone" dataKey="mood" stroke="#FFB3A7" strokeWidth={3} fillOpacity={1} fill="url(#colorMood)" />
@@ -190,7 +199,7 @@ const Care: React.FC = () => {
                         <p className="text-xs font-bold text-brand-warm-700">{med.time_of_day || 'As needed'}</p>
                       </div>
                       {user?.role === 'parent' && (
-                        <button 
+                        <button
                           onClick={async () => {
                             await api.delete(`/medications/${med.id}`);
                             fetchMedications();
@@ -212,7 +221,7 @@ const Care: React.FC = () => {
           <div className="glass p-6 rounded-3xl bg-brand-peach/5 border-brand-peach/10">
             <h4 className="text-xs font-bold text-brand-peach mb-3 uppercase tracking-wider">Health Reminder</h4>
             <p className="text-sm text-brand-warm-700 font-medium">
-              {medications.length > 0 
+              {medications.length > 0
                 ? `Next up: ${medications[0].name} scheduled for today.`
                 : "All clear! No pending health tasks."}
             </p>
@@ -223,22 +232,21 @@ const Care: React.FC = () => {
       {/* Mood Check-In Modal */}
       {showCheckIn && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-brand-warm-900/40 backdrop-blur-sm">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="w-full max-w-md bg-white dark:bg-brand-warm-900 p-10 rounded-4xl shadow-2xl text-center"
           >
             <h2 className="text-2xl font-bold text-brand-warm-900 mb-2">How are you feeling?</h2>
             <p className="text-brand-warm-500 mb-10">Take a moment to check in with yourself.</p>
-            
+
             <div className="flex justify-between mb-12">
               {moods.map((m) => (
                 <button
                   key={m.value}
                   onClick={() => setMood(m.value)}
-                  className={`flex flex-col items-center gap-2 transition-all ${
-                    mood === m.value ? 'scale-125' : 'opacity-40 hover:opacity-100 grayscale hover:grayscale-0'
-                  }`}
+                  className={`flex flex-col items-center gap-2 transition-all ${mood === m.value ? 'scale-125' : 'opacity-40 hover:opacity-100 grayscale hover:grayscale-0'
+                    }`}
                 >
                   <span className="text-4xl">{m.emoji}</span>
                   <span className={`text-[10px] font-bold uppercase tracking-widest ${mood === m.value ? 'text-brand-peach' : 'text-brand-warm-400'}`}>
@@ -258,7 +266,7 @@ const Care: React.FC = () => {
       {/* Add Medication Modal */}
       {showAddMed && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-brand-warm-900/40 backdrop-blur-sm">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="w-full max-w-md bg-white dark:bg-brand-warm-900 p-10 rounded-4xl shadow-2xl"
@@ -267,31 +275,31 @@ const Care: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-bold text-brand-warm-500 uppercase tracking-widest mb-2 block">Medicine Name</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className="w-full px-4 py-3 bg-brand-warm-50 border border-brand-warm-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach"
                   placeholder="e.g., Vitamin C"
                   value={newMed.name}
-                  onChange={(e) => setNewMed({...newMed, name: e.target.value})}
+                  onChange={(e) => setNewMed({ ...newMed, name: e.target.value })}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-brand-warm-500 uppercase tracking-widest mb-2 block">Dosage</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     className="w-full px-4 py-3 bg-brand-warm-50 border border-brand-warm-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach"
                     placeholder="e.g., 500mg"
                     value={newMed.dosage}
-                    onChange={(e) => setNewMed({...newMed, dosage: e.target.value})}
+                    onChange={(e) => setNewMed({ ...newMed, dosage: e.target.value })}
                   />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-brand-warm-500 uppercase tracking-widest mb-2 block">Frequency</label>
-                  <select 
+                  <select
                     className="w-full px-4 py-3 bg-brand-warm-50 border border-brand-warm-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach"
                     value={newMed.frequency}
-                    onChange={(e) => setNewMed({...newMed, frequency: e.target.value})}
+                    onChange={(e) => setNewMed({ ...newMed, frequency: e.target.value })}
                   >
                     <option value="Daily">Daily</option>
                     <option value="Twice Daily">Twice Daily</option>
@@ -302,23 +310,23 @@ const Care: React.FC = () => {
               </div>
               <div>
                 <label className="text-xs font-bold text-brand-warm-500 uppercase tracking-widest mb-2 block">Time of Day</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className="w-full px-4 py-3 bg-brand-warm-50 border border-brand-warm-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach"
                   placeholder="e.g., 08:00, 20:00"
                   value={newMed.time_of_day}
-                  onChange={(e) => setNewMed({...newMed, time_of_day: e.target.value})}
+                  onChange={(e) => setNewMed({ ...newMed, time_of_day: e.target.value })}
                 />
               </div>
               <div className="flex gap-3 pt-4">
                 <button onClick={() => setShowAddMed(false)} className="flex-1 btn-secondary">Cancel</button>
-                <button 
+                <button
                   onClick={async () => {
                     await api.post('/medications/', { ...newMed, user_id: user?.id });
                     setShowAddMed(false);
                     setNewMed({ name: '', dosage: '', frequency: 'Daily', time_of_day: '', instructions: '' });
                     fetchMedications();
-                  }} 
+                  }}
                   className="flex-1 btn-primary"
                 >
                   Save Medicine
@@ -332,22 +340,5 @@ const Care: React.FC = () => {
   );
 };
 
-const HabitItem = ({ icon, label, value, progress }: { icon: React.ReactNode, label: string, value: string, progress: number }) => (
-  <div className="space-y-2">
-    <div className="flex justify-between items-center text-sm">
-      <div className="flex items-center gap-2 font-semibold text-brand-warm-700">
-        {icon} {label}
-      </div>
-      <span className="text-brand-warm-500 font-medium">{value}</span>
-    </div>
-    <div className="h-2 bg-brand-warm-100 dark:bg-brand-warm-800 rounded-full overflow-hidden">
-      <motion.div 
-        initial={{ width: 0 }}
-        animate={{ width: `${progress}%` }}
-        className="h-full bg-brand-peach rounded-full"
-      />
-    </div>
-  </div>
-);
 
 export default Care;

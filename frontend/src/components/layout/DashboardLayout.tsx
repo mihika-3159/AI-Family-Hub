@@ -12,7 +12,6 @@ import {
   Sparkles,
   Sun,
   Moon,
-  Bell
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';

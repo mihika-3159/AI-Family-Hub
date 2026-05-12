@@ -7,10 +7,17 @@ interface User {
   username: string;
   full_name: string;
   role: string;
-  is_senior: bool;
+  is_senior: boolean;
   avatar_color: string;
   family_id: number | null;
   onboarding_completed: boolean;
+  family?: {
+    id: number;
+    name: string;
+    invite_code: string;
+    motto?: string;
+    avatar_emoji?: string;
+  } | null;
 }
 
 interface AuthContextType {

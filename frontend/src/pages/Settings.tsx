@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  User as UserIcon, 
-  Users, 
-  Bell, 
-  Palette, 
-  Shield, 
-  LogOut, 
+import {
+  User as UserIcon,
+  Users,
+  Bell,
+  Palette,
+  Shield,
+  LogOut,
   Plus,
   Share2,
-  ChevronRight,
-  Sparkles,
   Download,
-  Loader2
+  Loader2,
+  ChevronRight
 } from 'lucide-react';
 import api from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
@@ -64,18 +62,17 @@ const Settings: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-3 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${
-                activeTab === tab.id 
-                  ? 'bg-brand-peach text-white shadow-soft' 
+              className={`flex items-center gap-3 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${activeTab === tab.id
+                  ? 'bg-brand-peach text-white shadow-soft'
                   : 'text-brand-warm-500 hover:bg-white hover:text-brand-warm-700'
-              }`}
+                }`}
             >
               {tab.icon}
               <span>{tab.label}</span>
             </button>
           ))}
           <div className="mt-8">
-            <button 
+            <button
               onClick={logout}
               className="flex items-center gap-3 px-6 py-4 w-full rounded-2xl text-sm font-bold text-red-400 hover:bg-red-50 transition-all"
             >
@@ -90,7 +87,7 @@ const Settings: React.FC = () => {
           {activeTab === 'profile' && (
             <div className="space-y-8">
               <div className="flex items-center gap-6">
-                <div 
+                <div
                   className="w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold border-8 border-brand-warm-50 shadow-soft"
                   style={{ backgroundColor: user?.avatar_color || '#FFB3A7' }}
                 >
@@ -105,9 +102,9 @@ const Settings: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-brand-warm-700 ml-1">Full Name</label>
-                  <input 
-                    type="text" 
-                    className="w-full px-6 py-4 bg-brand-warm-50 rounded-2xl outline-none border border-brand-warm-100 text-brand-warm-600" 
+                  <input
+                    type="text"
+                    className="w-full px-6 py-4 bg-brand-warm-50 rounded-2xl outline-none border border-brand-warm-100 text-brand-warm-600"
                     value={formData.full_name}
                     onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                   />
@@ -117,8 +114,8 @@ const Settings: React.FC = () => {
                   <input type="text" value={user?.role} readOnly className="w-full px-6 py-4 bg-brand-warm-100 rounded-2xl outline-none border border-brand-warm-100 text-brand-warm-400 capitalize cursor-not-allowed" />
                 </div>
               </div>
-              
-              <button 
+
+              <button
                 onClick={async () => {
                   try {
                     await api.patch('/auth/me', { full_name: formData.full_name });
@@ -126,7 +123,7 @@ const Settings: React.FC = () => {
                   } catch (err) {
                     alert('Failed to update profile');
                   }
-                }} 
+                }}
                 className="btn-primary"
               >
                 Update Profile
@@ -141,7 +138,7 @@ const Settings: React.FC = () => {
                     <p className="font-semibold text-brand-warm-800">Export Family Data</p>
                     <p className="text-xs text-brand-warm-500">Download a full summary of your family's activities and wellness trends.</p>
                   </div>
-                  <button 
+                  <button
                     onClick={async () => {
                       const res = await api.get('/export/summary');
                       const blob = new Blob([JSON.stringify(res.data, null, 2)], { type: 'application/json' });
@@ -155,7 +152,7 @@ const Settings: React.FC = () => {
                   >
                     Export JSON
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
                       localStorage.removeItem(`onboarding_${user?.id}`);
                       api.patch('/auth/me', { onboarding_completed: false });
@@ -194,7 +191,7 @@ const Settings: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex bg-brand-warm-100 dark:bg-brand-warm-800 p-1 rounded-xl">
-                    <button 
+                    <button
                       onClick={() => {
                         localStorage.setItem('theme', 'light');
                         document.documentElement.classList.remove('dark');
@@ -204,7 +201,7 @@ const Settings: React.FC = () => {
                     >
                       Light
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         localStorage.setItem('theme', 'dark');
                         document.documentElement.classList.add('dark');
@@ -257,7 +254,7 @@ const Settings: React.FC = () => {
                 ) : (
                   members.map((member) => (
                     <div key={member.id} className="flex items-center gap-4 p-5 rounded-3xl bg-brand-warm-50/50 border border-brand-warm-100 hover:bg-white hover:shadow-soft transition-all group">
-                      <div 
+                      <div
                         className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm"
                         style={{ backgroundColor: member.avatar_color || '#FFB3A7' }}
                       >
@@ -272,7 +269,7 @@ const Settings: React.FC = () => {
                       </div>
                       {user?.role === 'parent' && member.id !== user?.id && (
                         <div className="flex items-center gap-2">
-                          <select 
+                          <select
                             className="bg-transparent text-xs font-bold text-brand-peach outline-none"
                             value={member.role}
                             onChange={async (e) => {
@@ -319,7 +316,7 @@ const ToggleItem = ({ title, description, defaultChecked }: { title: string, des
         <p className="font-bold text-brand-warm-800">{title}</p>
         <p className="text-xs text-brand-warm-500">{description}</p>
       </div>
-      <button 
+      <button
         onClick={() => setChecked(!checked)}
         className={`w-12 h-6 rounded-full p-1 transition-all ${checked ? 'bg-brand-peach' : 'bg-brand-warm-200'}`}
       >
@@ -328,25 +325,4 @@ const ToggleItem = ({ title, description, defaultChecked }: { title: string, des
     </div>
   );
 };
-
-const MemberItem = ({ name, role, color, isMe, isSenior }: { name: string, role: string, color: string, isMe?: boolean, isSenior?: boolean }) => (
-  <div className="flex items-center gap-4 p-5 rounded-3xl bg-brand-warm-50/50 border border-brand-warm-100 hover:bg-white hover:shadow-soft transition-all cursor-pointer group">
-    <div 
-      className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm"
-      style={{ backgroundColor: color }}
-    >
-      {name[0]}
-    </div>
-    <div className="flex-1">
-      <div className="flex items-center gap-2">
-        <h4 className="font-bold text-brand-warm-800">{name}</h4>
-        {isMe && <span className="text-[10px] bg-brand-peach/10 text-brand-peach px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Me</span>}
-        {isSenior && <Sparkles size={14} className="text-brand-sun" />}
-      </div>
-      <p className="text-xs text-brand-warm-500 font-medium uppercase tracking-widest mt-0.5">{role}</p>
-    </div>
-    <ChevronRight size={18} className="text-brand-warm-300 group-hover:text-brand-peach transition-colors" />
-  </div>
-);
-
 export default Settings;

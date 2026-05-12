@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import api from '../lib/api';
 import { motion } from 'framer-motion';
@@ -96,7 +96,7 @@ const Login: React.FC = () => {
                     type="text"
                     required
                     placeholder="John Doe"
-                    className="w-full pl-12 pr-4 py-3 bg-white border border-brand-warm-200 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
+                    className="w-full pl-12 pr-4 py-3 bg-white dark:bg-brand-warm-800 border border-brand-warm-200 dark:border-brand-warm-700 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
                     value={formData.full_name}
                     onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                   />
@@ -110,7 +110,7 @@ const Login: React.FC = () => {
                     type="email"
                     required
                     placeholder="john@example.com"
-                    className="w-full pl-12 pr-4 py-3 bg-white border border-brand-warm-200 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
+                    className="w-full pl-12 pr-4 py-3 bg-white dark:bg-brand-warm-800 border border-brand-warm-200 dark:border-brand-warm-700 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
@@ -127,7 +127,7 @@ const Login: React.FC = () => {
                 type="text"
                 required
                 placeholder="johndoe123"
-                className="w-full pl-12 pr-4 py-3 bg-white border border-brand-warm-200 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
+                className="w-full pl-12 pr-4 py-3 bg-white dark:bg-brand-warm-800 border border-brand-warm-200 dark:border-brand-warm-700 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
               />
@@ -142,7 +142,7 @@ const Login: React.FC = () => {
                 type="password"
                 required
                 placeholder="••••••••"
-                className="w-full pl-12 pr-4 py-3 bg-white border border-brand-warm-200 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
+                className="w-full pl-12 pr-4 py-3 bg-white dark:bg-brand-warm-800 border border-brand-warm-200 dark:border-brand-warm-700 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />

@@ -34,5 +34,15 @@ class UserInDB(UserBase):
     class Config:
         from_attributes = True
 
+class FamilyBasic(BaseModel):
+    id: int
+    name: str
+    invite_code: str
+    motto: Optional[str] = None
+    avatar_emoji: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
 class User(UserInDB):
-    pass
+    family: Optional[FamilyBasic] = None

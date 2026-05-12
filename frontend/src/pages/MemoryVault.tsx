@@ -4,7 +4,6 @@ import {
   Camera, 
   Image as ImageIcon, 
   Plus, 
-  Calendar, 
   Sparkles,
   Search,
   BookOpen,
@@ -124,7 +123,7 @@ const MemoryVault: React.FC = () => {
             <button onClick={() => setShowAdd(true)} className="btn-secondary">Add Your First Photo</button>
           </div>
         ) : (
-          memories.map((memory, index) => (
+          memories.map((memory) => (
             <motion.div 
               key={memory.id}
               initial={{ opacity: 0, x: -20 }}

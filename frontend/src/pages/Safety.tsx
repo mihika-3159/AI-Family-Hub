@@ -10,7 +10,8 @@ import {
   BookOpen,
   CheckCircle2,
   Circle,
-  Plus
+  Plus,
+  Loader2
 } from 'lucide-react';
 import api from '../lib/api';
 
@@ -102,7 +103,13 @@ const Safety: React.FC = () => {
               />
             </div>
 
-            {tips && (
+            {loading && (
+              <div className="flex items-center justify-center py-10">
+                <Loader2 className="animate-spin text-brand-mint" size={32} />
+              </div>
+            )}
+
+            {tips && !loading && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
