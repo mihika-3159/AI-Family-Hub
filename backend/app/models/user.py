@@ -36,3 +36,4 @@ class User(Base, TimestampMixin):
     created_tasks = relationship("Task", back_populates="creator", foreign_keys="Task.creator_id")
     wellness_entries = relationship("WellnessEntry", back_populates="user")
     memories = relationship("Memory", back_populates="uploaded_by_user")
+    medications = relationship("Medication", back_populates="user")

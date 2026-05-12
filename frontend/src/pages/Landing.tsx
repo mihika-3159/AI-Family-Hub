@@ -76,37 +76,31 @@ const Landing: React.FC = () => {
               icon={<Users className="text-brand-peach" />}
               title="Family Organizer"
               description="Shared calendars, smart chore distribution, and AI-suggested routines."
-              link="/login"
             />
             <FeatureCard 
               icon={<Heart className="text-red-400" />}
               title="Care & Wellbeing"
               description="Mood tracking, medication reminders, and health insights for all ages."
-              link="/login"
             />
             <FeatureCard 
               icon={<Camera className="text-brand-sky" />}
               title="Memory Vault"
               description="Capture moments, generate AI stories, and build a digital family legacy."
-              link="/login"
             />
             <FeatureCard 
               icon={<Sparkles className="text-brand-sun" />}
               title="Bonding Activities"
               description="AI-generated activity ideas based on your budget, time, and mood."
-              link="/login"
             />
             <FeatureCard 
               icon={<Shield className="text-brand-mint" />}
               title="Digital Safety"
               description="Protect your loved ones with scam awareness and cybersecurity tips."
-              link="/login"
             />
             <FeatureCard 
               icon={<Sparkles className="text-brand-lavender" />}
               title="AI Assistant"
               description="A warm, conversational companion to help you navigate daily life."
-              link="/login"
             />
           </div>
         </div>
@@ -131,18 +125,16 @@ const Landing: React.FC = () => {
   );
 };
 
-const FeatureCard = ({ icon, title, description, link }: { icon: React.ReactNode, title: string, description: string, link: string }) => (
+const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) => (
   <motion.div 
-    whileHover={{ y: -10 }}
-    className="p-8 rounded-3xl bg-brand-warm-50 border border-brand-warm-100 hover:border-brand-peach/30 transition-all cursor-pointer"
+    whileHover={{ y: -5 }}
+    className="p-8 rounded-3xl bg-brand-warm-50 border border-brand-warm-100 hover:border-brand-peach/20 transition-all"
   >
-    <Link to={link} className="block">
-      <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
-        {icon}
-      </div>
-      <h3 className="text-xl font-bold text-brand-warm-900 mb-3">{title}</h3>
-      <p className="text-brand-warm-600 leading-relaxed">{description}</p>
-    </Link>
+    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
+      {icon}
+    </div>
+    <h3 className="text-xl font-bold text-brand-warm-900 mb-3">{title}</h3>
+    <p className="text-brand-warm-600 leading-relaxed">{description}</p>
   </motion.div>
 );
 

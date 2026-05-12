@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ShieldCheck, 
@@ -31,6 +31,8 @@ const Safety: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
   const fetchSecurityAlert = async () => {
     try {
       const res = await api.get('/ai/security-alert');

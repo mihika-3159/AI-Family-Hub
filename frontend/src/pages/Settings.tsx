@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   User as UserIcon, 
@@ -44,7 +44,7 @@ const Settings: React.FC = () => {
 
   const tabs = [
     { id: 'profile', label: 'My Profile', icon: <UserIcon size={18} /> },
-    { id: 'family', label: 'Family Management', icon: <Users size={18} /> },
+    ...(user?.role === 'parent' ? [{ id: 'family', label: 'Family Management', icon: <Users size={18} /> }] : []),
     { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },
     { id: 'appearance', label: 'Appearance', icon: <Palette size={18} /> },
     { id: 'security', label: 'Privacy & Security', icon: <Shield size={18} /> },
@@ -155,6 +155,16 @@ const Settings: React.FC = () => {
                   >
                     Export JSON
                   </button>
+                  <button 
+                    onClick={() => {
+                      localStorage.removeItem(`onboarding_${user?.id}`);
+                      api.patch('/auth/me', { onboarding_completed: false });
+                      alert('Walkthrough reset! It will appear next time you visit the Dashboard.');
+                    }}
+                    className="btn-secondary text-sm"
+                  >
+                    Reset Walkthrough
+                  </button>
                 </div>
               </div>
             </div>
@@ -184,8 +194,26 @@ const Settings: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex bg-brand-warm-100 p-1 rounded-xl">
-                    <button className="px-4 py-2 rounded-lg text-xs font-bold bg-white shadow-sm">Light</button>
-                    <button className="px-4 py-2 rounded-lg text-xs font-bold text-brand-warm-500">Dark</button>
+                    <button 
+                      onClick={() => {
+                        localStorage.setItem('theme', 'light');
+                        document.documentElement.classList.remove('dark');
+                        setActiveTab('appearance'); // Refresh state
+                      }}
+                      className={`px-4 py-2 rounded-lg text-xs font-bold ${!document.documentElement.classList.contains('dark') ? 'bg-white shadow-sm' : 'text-brand-warm-500'}`}
+                    >
+                      Light
+                    </button>
+                    <button 
+                      onClick={() => {
+                        localStorage.setItem('theme', 'dark');
+                        document.documentElement.classList.add('dark');
+                        setActiveTab('appearance'); // Refresh state
+                      }}
+                      className={`px-4 py-2 rounded-lg text-xs font-bold ${document.documentElement.classList.contains('dark') ? 'bg-white shadow-sm' : 'text-brand-warm-500'}`}
+                    >
+                      Dark
+                    </button>
                   </div>
                 </div>
                 <ToggleItem title="High Contrast" description="Increase contrast for better readability, recommended for senior mode." defaultChecked={user?.is_senior} />

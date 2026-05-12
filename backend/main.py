@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
-from app.api import auth, family, tasks, wellness, memories, activities, ai, notifications, export
+from app.api import auth, family, tasks, wellness, memories, activities, ai, notifications, export, medications
 from app.db.session import init_db
 
 settings = get_settings()
@@ -19,7 +19,7 @@ def startup():
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,6 +35,7 @@ app.include_router(activities.router, prefix="/api/activities", tags=["activitie
 app.include_router(ai.router, prefix="/api/ai", tags=["ai"])
 app.include_router(notifications.router, prefix="/api/notifications", tags=["notifications"])
 app.include_router(export.router, prefix="/api/export", tags=["export"])
+app.include_router(medications.router, prefix="/api/medications", tags=["medications"])
 
 @app.get("/")
 def root():

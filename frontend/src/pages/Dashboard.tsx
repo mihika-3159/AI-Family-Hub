@@ -87,10 +87,12 @@ const Dashboard: React.FC = () => {
         
         setRecentActivities(combined);
 
-        // Handle onboarding logic
+        // Handle onboarding logic: Only if not in localStorage AND not marked as completed in DB
         const hasSeenOnboarding = localStorage.getItem(`onboarding_${user?.id}`);
         if (!hasSeenOnboarding && !user?.onboarding_completed) {
           setShowOnboarding(true);
+        } else {
+          setShowOnboarding(false);
         }
       } catch (err) {
         console.error("Failed to fetch stats", err);

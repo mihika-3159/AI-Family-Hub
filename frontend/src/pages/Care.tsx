@@ -15,10 +15,12 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import api from '../lib/api';
+import { useAuth } from '../hooks/useAuth';
 
 const Care: React.FC = () => {
   const [mood, setMood] = useState<number>(3);
   const [entries, setEntries] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [showCheckIn, setShowCheckIn] = useState(false);
   const [medications, setMedications] = useState<any[]>([]);
   const [showAddMed, setShowAddMed] = useState(false);
@@ -40,6 +42,7 @@ const Care: React.FC = () => {
   ];
 
   const fetchEntries = async () => {
+    setLoading(true);
     try {
       const res = await api.get('/wellness/');
       setEntries(res.data);

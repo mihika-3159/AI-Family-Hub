@@ -18,3 +18,4 @@ class Family(Base, TimestampMixin):
     tasks = relationship("Task", back_populates="family")
     memories = relationship("Memory", back_populates="family")
     activities = relationship("Activity", back_populates="family")
+    medications = relationship("Medication", back_populates="family")

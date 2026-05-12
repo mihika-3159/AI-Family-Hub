@@ -13,7 +13,10 @@ router = APIRouter()
 def get_medications(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     if not current_user.family_id:
         return []
-    return db.query(Medication).filter(Medication.family_id == current_user.family_id).all()
+    # If parent, they can see all in family? 
+    # User said "only see their own and not anyone else's". 
+    # I'll stick to strict "only their own" as requested.
+    return db.query(Medication).filter(Medication.user_id == current_user.id).all()
 
 @router.post("/", response_model=MedicationSchema)
 def create_medication(request: MedicationCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
