@@ -19,3 +19,4 @@ class RegisterRequest(BaseModel):
     password: str
     full_name: str
     is_senior: bool = False
+    invite_code: Optional[str] = None

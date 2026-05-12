@@ -17,15 +17,20 @@ import SpeechBot from '../components/ai/SpeechBot';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
-  const [showOnboarding, setShowOnboarding] = useState(!user?.onboarding_completed);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [walkthroughStep, setWalkthroughStep] = useState(0);
   const [stats, setStats] = useState({
     tasks: 0,
     wellness: 0,
     memories: 0
   });
+  const [topPriority, setTopPriority] = useState<any>(null);
+  const [familyInsights, setFamilyInsights] = useState<string[]>([]);
   const [weeklySummary, setWeeklySummary] = useState<string | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [recentActivities, setRecentActivities] = useState<any[]>([]);
+  const [updateText, setUpdateText] = useState('');
 
   const onboardingSteps = [
     { title: "Welcome home!", text: "This is your family dashboard. It's the central hub for everything happening in your household." },
@@ -39,16 +44,54 @@ const Dashboard: React.FC = () => {
     // Fetch dashboard stats
     const fetchStats = async () => {
       try {
-        const [tasks, wellness, memories] = await Promise.all([
+        const [tasks, wellness, memories, insights] = await Promise.all([
           api.get('/tasks/'),
           api.get('/wellness/'),
-          api.get('/memories/')
+          api.get('/memories/'),
+          api.get('/ai/family-insights')
         ]);
         setStats({
           tasks: tasks.data.length,
           wellness: wellness.data.length,
           memories: memories.data.length
         });
+        
+        try {
+          // Parse AI response if it's a string representation of a list
+          const rawInsights = insights.data.insights;
+          if (typeof rawInsights === 'string') {
+             // Basic attempt to parse if it's JSON-like
+             if (rawInsights.startsWith('[')) {
+               setFamilyInsights(JSON.parse(rawInsights));
+             } else {
+               setFamilyInsights([rawInsights]);
+             }
+          } else {
+            setFamilyInsights(rawInsights);
+          }
+        } catch (e) {
+          setFamilyInsights(["Welcome back! Let's make today great.", "Check your tasks for any high priority items."]);
+        }
+        
+        const sortedTasks = tasks.data.sort((a: any, b: any) => {
+          const pMap: any = { high: 3, medium: 2, low: 1 };
+          return pMap[b.priority] - pMap[a.priority];
+        });
+        setTopPriority(sortedTasks.find((t: any) => !t.is_completed));
+
+        // Combine memories and tasks for activity feed
+        const combined = [
+          ...memories.data.map((m: any) => ({ icon: '📸', text: `${m.title} uploaded`, time: new Date(m.created_at).toLocaleString() })),
+          ...tasks.data.filter((t: any) => t.is_completed).map((t: any) => ({ icon: '✅', text: `${t.title} completed`, time: new Date(t.updated_at).toLocaleString() }))
+        ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 5);
+        
+        setRecentActivities(combined);
+
+        // Handle onboarding logic
+        const hasSeenOnboarding = localStorage.getItem(`onboarding_${user?.id}`);
+        if (!hasSeenOnboarding && !user?.onboarding_completed) {
+          setShowOnboarding(true);
+        }
       } catch (err) {
         console.error("Failed to fetch stats", err);
       }
@@ -61,7 +104,7 @@ const Dashboard: React.FC = () => {
       setWalkthroughStep(walkthroughStep + 1);
     } else {
       setShowOnboarding(false);
-      // Mark onboarding as completed in backend
+      localStorage.setItem(`onboarding_${user?.id}`, 'true');
       api.patch(`/auth/me`, { onboarding_completed: true });
     }
   };
@@ -84,7 +127,7 @@ const Dashboard: React.FC = () => {
       <header className="flex justify-between items-end">
         <div>
           <h1 className="text-4xl font-bold text-brand-warm-900 mb-2">
-            Good evening, {user?.full_name.split(' ')[0]}!
+            Good evening, {(user?.full_name || 'Family').split(' ')[0]}!
           </h1>
           <p className="text-brand-warm-500">Your family is currently feeling <span className="text-brand-peach font-semibold italic">Peaceful</span>.</p>
         </div>
@@ -97,7 +140,10 @@ const Dashboard: React.FC = () => {
             {summaryLoading ? <Loader2 className="animate-spin" size={20} /> : <BrainCircuit size={20} />}
             Weekly AI Summary
           </button>
-          <button className="btn-primary flex items-center gap-2">
+          <button 
+            onClick={() => setShowUpdateModal(true)}
+            className="btn-primary flex items-center gap-2"
+          >
             <Plus size={20} /> New Update
           </button>
         </div>
@@ -136,18 +182,22 @@ const Dashboard: React.FC = () => {
               Family Insights
             </h3>
             <div className="space-y-4">
-              <div className="flex gap-4 p-4 bg-brand-peach/5 rounded-2xl border border-brand-peach/10">
-                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">💡</div>
-                <p className="text-brand-warm-700 text-sm leading-relaxed">
-                  "Looks like Sunday is free! Shall I suggest a family bonding activity for then?"
-                </p>
-              </div>
-              <div className="flex gap-4 p-4 bg-brand-mint/5 rounded-2xl border border-brand-mint/10">
-                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">🍎</div>
-                <p className="text-brand-warm-700 text-sm leading-relaxed">
-                  "Wellness check: Everyone's energy is high. Great time for that outdoor walk!"
-                </p>
-              </div>
+              {familyInsights.map((insight, i) => (
+                <div key={i} className={`flex gap-4 p-4 rounded-2xl border ${i === 0 ? 'bg-brand-peach/5 border-brand-peach/10' : 'bg-brand-mint/5 border-brand-mint/10'}`}>
+                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">{i === 0 ? '💡' : '🍎'}</div>
+                  <p className="text-brand-warm-700 text-sm leading-relaxed">
+                    "{insight}"
+                  </p>
+                </div>
+              ))}
+              {familyInsights.length === 0 && (
+                 <div className="flex gap-4 p-4 bg-brand-peach/5 rounded-2xl border border-brand-peach/10">
+                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">💡</div>
+                  <p className="text-brand-warm-700 text-sm leading-relaxed">
+                    "Welcome back! I'm analyzing your family data to provide fresh insights."
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -155,17 +205,31 @@ const Dashboard: React.FC = () => {
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-brand-warm-800">Recent Activity</h3>
             <div className="space-y-3">
-              <ActivityItem icon="📸" text="Mom uploaded a new memory: 'Summer BBQ'" time="2 hours ago" />
-              <ActivityItem icon="✅" text="Dad completed a chore: 'Mow the lawn'" time="5 hours ago" />
-              <ActivityItem icon="❤️" text="You logged a mood check-in" time="Yesterday" />
+              {recentActivities.length > 0 ? (
+                recentActivities.map((act, i) => (
+                  <ActivityItem key={i} icon={act.icon} text={act.text} time={act.time} />
+                ))
+              ) : (
+                <div className="text-center py-10 glass rounded-3xl text-brand-warm-400">
+                  <p>No recent activity. Start by adding a task or memory!</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Sidebar Widgets */}
-        <div className="space-y-8">
-          {/* AI Assistant Chat Widget */}
-          <div className="glass p-6 rounded-4xl flex flex-col h-[500px]">
+          {/* Sidebar Widgets */}
+          <div className="space-y-8">
+            {/* Top Priority from Real Data */}
+            <div className="glass p-8 rounded-4xl bg-brand-sky/5 border-brand-sky/10">
+              <h4 className="text-sm font-bold text-brand-sky mb-2 uppercase tracking-wider">Family Top Priority</h4>
+              <p className="text-brand-warm-700 font-semibold italic text-sm leading-relaxed">
+                {topPriority ? `"${topPriority.title}" is our current focus. Let's get it done!` : '"Enjoy some quality family time today!"'}
+              </p>
+            </div>
+
+            {/* AI Assistant Chat Widget */}
+            <div className="glass p-6 rounded-4xl flex flex-col h-[400px]">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-brand-peach rounded-lg flex items-center justify-center text-white shadow-sm">
                 <MessageSquare size={16} />
@@ -224,6 +288,38 @@ const Dashboard: React.FC = () => {
               text={onboardingSteps[walkthroughStep].text} 
               enabled={user?.is_senior || false} 
             />
+          </motion.div>
+        </div>
+      )}
+      
+      {/* New Update Modal */}
+      {showUpdateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-brand-warm-900/40 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-lg bg-white p-10 rounded-4xl shadow-2xl"
+          >
+            <h2 className="text-2xl font-bold text-brand-warm-900 mb-6">Family Update</h2>
+            <textarea
+              className="w-full p-4 bg-brand-warm-50 border border-brand-warm-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach min-h-[150px] mb-6"
+              placeholder="What's happening in the family?"
+              value={updateText}
+              onChange={(e) => setUpdateText(e.target.value)}
+            />
+            <div className="flex gap-4">
+              <button onClick={() => setShowUpdateModal(false)} className="flex-1 btn-secondary">Cancel</button>
+              <button 
+                onClick={() => {
+                  setShowUpdateModal(false);
+                  setUpdateText('');
+                  alert('Update posted to family hub!');
+                }} 
+                className="flex-1 btn-primary"
+              >
+                Post Update
+              </button>
+            </div>
           </motion.div>
         </div>
       )}

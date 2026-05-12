@@ -31,13 +31,15 @@ const Organizer: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
+  const [familyMembers, setFamilyMembers] = useState<any[]>([]);
 
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
     priority: 'medium',
     category: 'chore',
-    due_date: ''
+    due_date: '',
+    assignee_id: null as number | null
   });
 
   const fetchTasks = async () => {
@@ -51,16 +53,28 @@ const Organizer: React.FC = () => {
     }
   };
 
+  const fetchFamilyMembers = async () => {
+    try {
+      const res = await api.get('/auth/members');
+      setFamilyMembers(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchTasks();
-  }, []);
+    if (user?.role === 'parent') fetchFamilyMembers();
+  }, [user]);
 
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post('/tasks/', newTask);
+      const payload: any = { ...newTask };
+      if (!payload.due_date) delete payload.due_date;
+      await api.post('/tasks/', payload);
       setShowAddModal(false);
-      setNewTask({ title: '', description: '', priority: 'medium', category: 'chore', due_date: '' });
+      setNewTask({ title: '', description: '', priority: 'medium', category: 'chore', due_date: '', assignee_id: null });
       fetchTasks();
     } catch (err) {
       console.error(err);
@@ -153,49 +167,32 @@ const Organizer: React.FC = () => {
               <button onClick={() => setShowAddModal(true)} className="btn-secondary">Add First Task</button>
             </div>
           ) : (
-            <div className="space-y-3">
-              {tasks.map((task) => (
-                <motion.div 
-                  key={task.id}
-                  layout
-                  className={`glass p-5 rounded-2xl flex items-center gap-4 transition-all ${task.is_completed ? 'opacity-60 grayscale' : 'hover:border-brand-peach/30'}`}
-                >
-                  <button 
-                    onClick={() => toggleTask(task.id, task.is_completed)}
-                    className={`transition-colors ${task.is_completed ? 'text-brand-mint' : 'text-brand-warm-300 hover:text-brand-peach'}`}
-                  >
-                    {task.is_completed ? <CheckCircle2 size={24} /> : <Circle size={24} />}
-                  </button>
-                  
-                  <div className="flex-1">
-                    <h4 className={`font-semibold text-brand-warm-800 ${task.is_completed ? 'line-through' : ''}`}>
-                      {task.title}
-                    </h4>
-                    <div className="flex gap-4 mt-1">
-                      <span className="flex items-center gap-1 text-xs text-brand-warm-400">
-                        <Tag size={12} /> {task.category}
-                      </span>
-                      <span className={`flex items-center gap-1 text-xs font-semibold ${
-                        task.priority === 'high' ? 'text-red-400' : task.priority === 'medium' ? 'text-brand-sun' : 'text-brand-sky'
-                      }`}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${
-                          task.priority === 'high' ? 'bg-red-400' : task.priority === 'medium' ? 'bg-brand-sun' : 'bg-brand-sky'
-                        }`} />
-                        {task.priority}
-                      </span>
-                      {task.due_date && (
-                        <span className="flex items-center gap-1 text-xs text-brand-warm-400">
-                          <Clock size={12} /> {new Date(task.due_date).toLocaleDateString()}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="flex -space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-brand-lavender border-2 border-white flex items-center justify-center text-[10px] font-bold">JD</div>
-                  </div>
-                </motion.div>
-              ))}
+            <div className="space-y-12">
+              <TaskSection 
+                title="Overdue" 
+                tasks={tasks.filter(t => !t.is_completed && t.due_date && new Date(t.due_date).setHours(0,0,0,0) < new Date().setHours(0,0,0,0))} 
+                color="text-red-500"
+                onToggle={toggleTask}
+              />
+              <TaskSection 
+                title="Due Today" 
+                tasks={tasks.filter(t => !t.is_completed && t.due_date && new Date(t.due_date).setHours(0,0,0,0) === new Date().setHours(0,0,0,0))} 
+                color="text-brand-peach"
+                onToggle={toggleTask}
+              />
+              <TaskSection 
+                title="Active" 
+                tasks={tasks.filter(t => !t.is_completed && (!t.due_date || new Date(t.due_date).setHours(0,0,0,0) > new Date().setHours(0,0,0,0)))} 
+                color="text-brand-sky"
+                onToggle={toggleTask}
+              />
+              <TaskSection 
+                title="Completed" 
+                tasks={tasks.filter(t => t.is_completed)} 
+                color="text-brand-mint"
+                onToggle={toggleTask}
+                isCompleted={true}
+              />
             </div>
           )}
         </div>
@@ -279,14 +276,32 @@ const Organizer: React.FC = () => {
                   </select>
                 </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-sm font-semibold text-brand-warm-700">Due Date</label>
-                <input
-                  type="date"
-                  className="w-full px-4 py-3 bg-brand-warm-50 border border-brand-warm-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach"
-                  value={newTask.due_date}
-                  onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-semibold text-brand-warm-700">Due Date</label>
+                  <input
+                    type="date"
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-4 py-3 bg-brand-warm-50 border border-brand-warm-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach"
+                    value={newTask.due_date}
+                    onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
+                  />
+                </div>
+                {user?.role === 'parent' && (
+                  <div className="space-y-1">
+                    <label className="text-sm font-semibold text-brand-warm-700">Assign To</label>
+                    <select
+                      className="w-full px-4 py-3 bg-brand-warm-50 border border-brand-warm-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach"
+                      value={newTask.assignee_id || ''}
+                      onChange={(e) => setNewTask({ ...newTask, assignee_id: e.target.value ? parseInt(e.target.value) : null })}
+                    >
+                      <option value="">Family Hub</option>
+                      {familyMembers.map(m => (
+                        <option key={m.id} value={m.id}>{m.full_name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
               <div className="flex gap-3 mt-6">
                 <button type="button" onClick={() => setShowAddModal(false)} className="flex-1 btn-secondary">Cancel</button>
@@ -296,6 +311,60 @@ const Organizer: React.FC = () => {
           </motion.div>
         </div>
       )}
+    </div>
+  );
+};
+
+const TaskSection = ({ title, tasks, color, onToggle, isCompleted }: { title: string, tasks: any[], color: string, onToggle: any, isCompleted?: boolean }) => {
+  if (tasks.length === 0) return null;
+  return (
+    <div className="space-y-4">
+      <h4 className={`text-sm font-bold uppercase tracking-widest ${color}`}>{title}</h4>
+      <div className="space-y-3">
+        {tasks.map((task) => (
+          <motion.div 
+            key={task.id}
+            layout
+            className={`glass p-5 rounded-2xl flex items-center gap-4 transition-all ${isCompleted ? 'opacity-60 grayscale' : 'hover:border-brand-peach/30'}`}
+          >
+            <button 
+              onClick={() => onToggle(task.id, task.is_completed)}
+              className={`transition-colors ${task.is_completed ? 'text-brand-mint' : 'text-brand-warm-300 hover:text-brand-peach'}`}
+            >
+              {task.is_completed ? <CheckCircle2 size={24} /> : <Circle size={24} />}
+            </button>
+            
+            <div className="flex-1">
+              <h4 className={`font-semibold text-brand-warm-800 ${task.is_completed ? 'line-through' : ''}`}>
+                {task.title}
+              </h4>
+              <div className="flex gap-4 mt-1">
+                <span className="flex items-center gap-1 text-xs text-brand-warm-400">
+                  <Tag size={12} /> {task.category}
+                </span>
+                <span className={`flex items-center gap-1 text-xs font-semibold ${
+                  task.priority === 'high' ? 'text-red-400' : task.priority === 'medium' ? 'text-brand-sun' : 'text-brand-sky'
+                }`}>
+                  <div className={`w-1.5 h-1.5 rounded-full ${
+                    task.priority === 'high' ? 'bg-red-400' : task.priority === 'medium' ? 'bg-brand-sun' : 'bg-brand-sky'
+                  }`} />
+                  {task.priority}
+                </span>
+                {task.due_date && (
+                  <span className="flex items-center gap-1 text-xs text-brand-warm-400">
+                    <Clock size={12} /> {new Date(task.due_date).toLocaleDateString()}
+                  </span>
+                )}
+                {task.assignee && (
+                   <span className="flex items-center gap-1 text-xs text-brand-peach font-bold">
+                    <UserIcon size={12} /> {task.assignee.full_name}
+                  </span>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 };

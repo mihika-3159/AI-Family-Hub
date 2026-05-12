@@ -18,6 +18,7 @@ const Login: React.FC = () => {
     password: '',
     full_name: '',
     is_senior: false,
+    invite_code: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,6 +44,7 @@ const Login: React.FC = () => {
           password: formData.password,
           full_name: formData.full_name,
           is_senior: formData.is_senior,
+          invite_code: formData.invite_code || null,
         });
         setIsLogin(true);
         setError('Account created! Please login.');
@@ -148,16 +150,33 @@ const Login: React.FC = () => {
           </div>
 
           {!isLogin && (
-            <div className="flex items-center gap-3 ml-1 py-2">
-              <input 
-                type="checkbox" 
-                id="is_senior"
-                className="w-5 h-5 rounded-lg border-brand-warm-300 text-brand-peach focus:ring-brand-peach"
-                checked={formData.is_senior}
-                onChange={(e) => setFormData({ ...formData, is_senior: e.target.checked })}
-              />
-              <label htmlFor="is_senior" className="text-sm text-brand-warm-600">I am a senior citizen (Enable assisted mode)</label>
-            </div>
+            <>
+              <div className="space-y-1">
+                <label className="text-sm font-semibold text-brand-warm-700 ml-1">Invite Code (Optional)</label>
+                <div className="relative">
+                  <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-warm-400" size={18} />
+                  <input
+                    type="text"
+                    placeholder="HUB-XXXX-X"
+                    className="w-full pl-12 pr-4 py-3 bg-white border border-brand-warm-200 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
+                    value={formData.invite_code}
+                    onChange={(e) => setFormData({ ...formData, invite_code: e.target.value })}
+                  />
+                </div>
+                <p className="text-[10px] text-brand-warm-400 ml-1">Leave blank to create a new family hub.</p>
+              </div>
+
+              <div className="flex items-center gap-3 ml-1 py-2">
+                <input 
+                  type="checkbox" 
+                  id="is_senior"
+                  className="w-5 h-5 rounded-lg border-brand-warm-300 text-brand-peach focus:ring-brand-peach"
+                  checked={formData.is_senior}
+                  onChange={(e) => setFormData({ ...formData, is_senior: e.target.checked })}
+                />
+                <label htmlFor="is_senior" className="text-sm text-brand-warm-600">I am a senior citizen (Enable assisted mode)</label>
+              </div>
+            </>
           )}
 
           <button 

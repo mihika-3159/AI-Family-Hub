@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from app.models import User
+from app.models import User, Task, Wellness
 from app.core.security import get_current_user
 from app.services.ai_service import ai_service
 from sqlalchemy.orm import Session
@@ -14,9 +14,25 @@ class ChatRequest(BaseModel):
     message: str
     context: str = ""
 
-@router.post("/chat")
-async def chat(request: ChatRequest, current_user: User = Depends(get_current_user)):
-    user_context = f"User is {current_user.full_name}, role: {current_user.role}. "
+@router.get("/security-alert")
+async def get_security_alert():
+    prompt = "Generate a single sentence real-time digital safety alert for a family (e.g., about a new phishing scam, a data breach, or a security best practice). Keep it concise and professional."
+    response = await ai_service.get_chat_response(prompt)
+    return {"alert": response}
+
+@router.get("/family-insights")
+async def get_family_insights(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Fetch some context
+    tasks = db.query(Task).filter(Task.family_id == current_user.family_id, Task.is_completed == False).limit(3).all()
+    wellness = db.query(Wellness).filter(Wellness.user_id == current_user.id).order_by(Wellness.date.desc()).first()
+    
+    context = f"Family has {len(tasks)} pending tasks: {[t.title for t in tasks]}. "
+    if wellness:
+        context += f"Last wellness entry: mood {wellness.mood_score}, energy {wellness.energy_level}."
+        
+    prompt = f"Based on this family data: {context}, provide 2 short, conversational insights or suggestions for the family. Format as a JSON list of strings."
+    response = await ai_service.get_chat_response(prompt)
+    return {"insights": response}
     if current_user.is_senior:
         user_context += "User is a senior citizen. "
     

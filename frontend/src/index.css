@@ -8,9 +8,41 @@
   color: #171717;
 }
 
-.dark {
-  background-color: #0A0A0A;
-  color: #F5F5F5;
+html.dark {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+html.dark body {
+  background-color: #000000;
+}
+
+html.dark .glass {
+  background-color: #1a1a1a;
+  border-color: #333333;
+  color: #ffffff;
+}
+
+html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark p, html.dark span, html.dark div, html.dark label {
+  color: #ffffff !important;
+}
+
+html.dark input, html.dark select, html.dark textarea {
+  background-color: #262626 !important;
+  border-color: #404040 !important;
+  color: #ffffff !important;
+}
+
+html.dark .bg-brand-warm-50 {
+  background-color: #000000 !important;
+}
+
+html.dark .bg-brand-warm-100 {
+  background-color: #1a1a1a !important;
+}
+
+body {
+  @apply bg-brand-warm-50 dark:bg-[#0A0A0A] text-brand-warm-900 dark:text-brand-warm-50;
 }
 
 @layer components {

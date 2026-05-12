@@ -20,7 +20,8 @@ const MemoryVault: React.FC = () => {
     title: '',
     description: '',
     memory_type: 'photo',
-    event_date: new Date().toISOString().split('T')[0]
+    event_date: new Date().toISOString().split('T')[0],
+    attachment: null as File | null
   });
 
   const fetchMemories = async () => {
@@ -41,9 +42,20 @@ const MemoryVault: React.FC = () => {
   const handleAddMemory = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post('/memories/', newMemory);
+      const data = new FormData();
+      data.append('title', newMemory.title);
+      data.append('description', newMemory.description);
+      data.append('memory_type', newMemory.memory_type);
+      data.append('event_date', newMemory.event_date);
+      if (newMemory.attachment) {
+        data.append('file', newMemory.attachment);
+      }
+      
+      await api.post('/memories/', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       setShowAdd(false);
-      setNewMemory({ title: '', description: '', memory_type: 'photo', event_date: new Date().toISOString().split('T')[0] });
+      setNewMemory({ title: '', description: '', memory_type: 'photo', event_date: new Date().toISOString().split('T')[0], attachment: null });
       fetchMemories();
     } catch (err) {
       console.error(err);
@@ -217,6 +229,22 @@ const MemoryVault: React.FC = () => {
                     value={newMemory.event_date}
                     onChange={(e) => setNewMemory({ ...newMemory, event_date: e.target.value })}
                   />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-semibold text-brand-warm-700">Attachment (Photo/File)</label>
+                <div className="relative group">
+                  <input
+                    type="file"
+                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                    onChange={(e) => setNewMemory({ ...newMemory, attachment: e.target.files?.[0] || null })}
+                  />
+                  <div className="w-full px-4 py-6 bg-brand-warm-50 border-2 border-dashed border-brand-warm-200 rounded-2xl flex flex-col items-center justify-center group-hover:border-brand-peach transition-all">
+                    <Plus size={24} className="text-brand-warm-400 group-hover:text-brand-peach mb-2" />
+                    <span className="text-sm text-brand-warm-500 font-medium">
+                      {newMemory.attachment ? newMemory.attachment.name : 'Click to upload a file'}
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="flex gap-3 mt-8">

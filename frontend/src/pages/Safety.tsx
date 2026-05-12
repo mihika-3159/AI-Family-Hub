@@ -10,7 +10,8 @@ import {
   BookOpen,
   CheckCircle2,
   Circle,
-  Search
+  Search,
+  Plus
 } from 'lucide-react';
 import api from '../lib/api';
 
@@ -18,6 +19,7 @@ const Safety: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'education' | 'checklist' | 'screentime'>('education');
   const [tips, setTips] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [securityAlert, setSecurityAlert] = useState<string>("Loading latest security alerts...");
 
   const getTips = async (topic: string) => {
     setLoading(true);
@@ -29,7 +31,18 @@ const Safety: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  const fetchSecurityAlert = async () => {
+    try {
+      const res = await api.get('/ai/security-alert');
+      setSecurityAlert(res.data.alert);
+    } catch (err) {
+      console.error(err);
+    }
   };
+
+  useEffect(() => {
+    fetchSecurityAlert();
+  }, []);
 
   const checklists = [
     { id: 1, text: "Enable 2FA on all family bank accounts", completed: true },
@@ -112,14 +125,14 @@ const Safety: React.FC = () => {
             <h3 className="text-2xl font-bold text-brand-warm-900 mb-8">Family Security Checklist</h3>
             <div className="space-y-4">
               {checklists.map((item) => (
-                <div key={item.id} className="flex items-center gap-4 p-5 rounded-2xl hover:bg-brand-warm-50 transition-all border border-brand-warm-100">
-                  <div className={item.completed ? 'text-brand-mint' : 'text-brand-warm-300'}>
+                <div key={item.id} className="flex items-center gap-4 p-5 rounded-2xl hover:bg-brand-warm-50 transition-all border border-brand-warm-100 bg-brand-warm-50/30">
+                  <div className={`cursor-pointer ${item.completed ? 'text-brand-mint' : 'text-brand-warm-300'}`}>
                     {item.completed ? <CheckCircle2 size={24} /> : <Circle size={24} />}
                   </div>
                   <span className={`flex-1 font-medium ${item.completed ? 'text-brand-warm-400 line-through' : 'text-brand-warm-700'}`}>
                     {item.text}
                   </span>
-                  <button className="text-brand-peach font-bold text-xs">DETAILS</button>
+                  <button className="text-brand-peach font-bold text-xs hover:underline">DETAILS</button>
                 </div>
               ))}
             </div>
@@ -160,12 +173,12 @@ const Safety: React.FC = () => {
         <div className="space-y-8">
           <div className="glass p-8 rounded-4xl bg-brand-sun/5 border-brand-sun/10">
             <h4 className="text-sm font-bold text-brand-sun mb-4 uppercase tracking-widest flex items-center gap-2">
-              <AlertTriangle size={16} /> Latest Alert
+              <AlertTriangle size={16} /> Latest AI Alert
             </h4>
             <p className="text-brand-warm-800 font-semibold mb-2 italic text-sm leading-relaxed">
-              "New phishing campaign targeting families using fake Netflix renewal emails."
+              "{securityAlert}"
             </p>
-            <p className="text-xs text-brand-warm-500">Reported 2 hours ago by Global Security Hub</p>
+            <p className="text-xs text-brand-warm-500">Real-time insight generated for your family</p>
           </div>
 
           <div className="glass p-8 rounded-4xl text-center">
@@ -200,17 +213,20 @@ const TabButton = ({ active, onClick, label, icon }: { active: boolean, onClick:
 
 const SafetyCard = ({ icon, title, description, onClick }: { icon: React.ReactNode, title: string, description: string, onClick: () => void }) => (
   <div 
-    onClick={onClick}
-    className="p-8 glass rounded-3xl card-hover group"
+    onClick={(e) => {
+      e.preventDefault();
+      onClick();
+    }}
+    className="p-8 glass rounded-3xl card-hover group cursor-pointer"
   >
     <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform">
       {icon}
     </div>
     <h3 className="text-xl font-bold text-brand-warm-900 mb-3">{title}</h3>
     <p className="text-brand-warm-500 text-sm leading-relaxed mb-6">{description}</p>
-    <button className="text-brand-peach font-bold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
+    <div className="text-brand-peach font-bold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
       Learn More <ChevronRight size={16} />
-    </button>
+    </div>
   </div>
 );
 

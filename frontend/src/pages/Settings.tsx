@@ -20,6 +20,27 @@ import { useAuth } from '../hooks/useAuth';
 const Settings: React.FC = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
+  const [formData, setFormData] = useState({
+    full_name: user?.full_name || '',
+  });
+  const [members, setMembers] = useState<any[]>([]);
+  const [loadingMembers, setLoadingMembers] = useState(false);
+
+  const fetchMembers = async () => {
+    setLoadingMembers(true);
+    try {
+      const res = await api.get('/auth/members');
+      setMembers(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingMembers(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'family') fetchMembers();
+  }, [activeTab]);
 
   const tabs = [
     { id: 'profile', label: 'My Profile', icon: <UserIcon size={18} /> },
@@ -83,23 +104,33 @@ const Settings: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-brand-warm-700 ml-1">Username</label>
-                  <input type="text" value={user?.username} readOnly className="w-full px-6 py-4 bg-brand-warm-50 rounded-2xl outline-none border border-brand-warm-100 text-brand-warm-600" />
+                  <label className="text-sm font-bold text-brand-warm-700 ml-1">Full Name</label>
+                  <input 
+                    type="text" 
+                    className="w-full px-6 py-4 bg-brand-warm-50 rounded-2xl outline-none border border-brand-warm-100 text-brand-warm-600" 
+                    value={formData.full_name}
+                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-brand-warm-700 ml-1">Role</label>
-                  <input type="text" value={user?.role} readOnly className="w-full px-6 py-4 bg-brand-warm-50 rounded-2xl outline-none border border-brand-warm-100 text-brand-warm-600 capitalize" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-brand-warm-700 ml-1">Account Type</label>
-                  <div className="px-6 py-4 bg-brand-warm-50 rounded-2xl border border-brand-warm-100 text-brand-warm-600 flex items-center justify-between">
-                    <span>{user?.is_senior ? 'Senior Citizen Mode' : 'Standard Mode'}</span>
-                    <Sparkles size={16} className={user?.is_senior ? 'text-brand-peach' : 'text-brand-warm-300'} />
-                  </div>
+                  <input type="text" value={user?.role} readOnly className="w-full px-6 py-4 bg-brand-warm-100 rounded-2xl outline-none border border-brand-warm-100 text-brand-warm-400 capitalize cursor-not-allowed" />
                 </div>
               </div>
               
-              <button className="btn-primary">Update Profile</button>
+              <button 
+                onClick={async () => {
+                  try {
+                    await api.patch('/auth/me', { full_name: formData.full_name });
+                    alert('Profile updated successfully!');
+                  } catch (err) {
+                    alert('Failed to update profile');
+                  }
+                }} 
+                className="btn-primary"
+              >
+                Update Profile
+              </button>
 
               <div className="pt-8 border-t border-brand-warm-100">
                 <h4 className="font-bold text-brand-warm-800 mb-4 flex items-center gap-2">
@@ -129,6 +160,60 @@ const Settings: React.FC = () => {
             </div>
           )}
 
+          {activeTab === 'notifications' && (
+            <div className="space-y-8">
+              <h3 className="text-2xl font-bold text-brand-warm-900">Notification Preferences</h3>
+              <div className="space-y-4">
+                <ToggleItem title="Email Notifications" description="Receive weekly summaries and important family updates via email." defaultChecked={true} />
+                <ToggleItem title="Push Notifications" description="Get real-time alerts for new tasks, messages, and memories." defaultChecked={true} />
+                <ToggleItem title="Wellness Reminders" description="Assisted reminders for hydration, medication, and mood check-ins." defaultChecked={user?.is_senior} />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'appearance' && (
+            <div className="space-y-8">
+              <h3 className="text-2xl font-bold text-brand-warm-900">Appearance Settings</h3>
+              <div className="space-y-6">
+                <div className="p-6 glass rounded-3xl flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-brand-warm-100 rounded-xl"><Palette size={20} className="text-brand-peach" /></div>
+                    <div>
+                      <p className="font-bold text-brand-warm-800">Application Theme</p>
+                      <p className="text-xs text-brand-warm-500">Choose between light and dark mode for your experience.</p>
+                    </div>
+                  </div>
+                  <div className="flex bg-brand-warm-100 p-1 rounded-xl">
+                    <button className="px-4 py-2 rounded-lg text-xs font-bold bg-white shadow-sm">Light</button>
+                    <button className="px-4 py-2 rounded-lg text-xs font-bold text-brand-warm-500">Dark</button>
+                  </div>
+                </div>
+                <ToggleItem title="High Contrast" description="Increase contrast for better readability, recommended for senior mode." defaultChecked={user?.is_senior} />
+                <ToggleItem title="Animations" description="Enable smooth transitions and micro-interactions throughout the app." defaultChecked={true} />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'security' && (
+            <div className="space-y-8">
+              <h3 className="text-2xl font-bold text-brand-warm-900">Privacy & Security</h3>
+              <div className="space-y-4">
+                <div className="p-6 glass rounded-3xl flex items-center justify-between group cursor-pointer hover:border-brand-peach/30 transition-all">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-brand-warm-100 rounded-xl group-hover:bg-brand-peach/10 transition-colors"><Shield size={20} className="text-brand-warm-600 group-hover:text-brand-peach" /></div>
+                    <div>
+                      <p className="font-bold text-brand-warm-800">Change Password</p>
+                      <p className="text-xs text-brand-warm-500">Update your account password for better security.</p>
+                    </div>
+                  </div>
+                  <ChevronRight size={18} className="text-brand-warm-300" />
+                </div>
+                <ToggleItem title="Two-Factor Authentication" description="Add an extra layer of security to your family hub account." />
+                <ToggleItem title="Data Sharing" description="Allow anonymized data sharing to improve family wellness AI insights." defaultChecked={true} />
+              </div>
+            </div>
+          )}
+
           {activeTab === 'family' && (
             <div className="space-y-8">
               <div className="flex justify-between items-center">
@@ -139,10 +224,43 @@ const Settings: React.FC = () => {
               </div>
 
               <div className="space-y-4">
-                <MemberItem name="Jane Doe" role="Parent" color="#FFB3A7" isMe={true} />
-                <MemberItem name="John Doe" role="Parent" color="#A5D8FF" />
-                <MemberItem name="Grandma Sarah" role="Elder" color="#E6E6FA" isSenior={true} />
-                <MemberItem name="Lily" role="Child" color="#B2F2BB" />
+                {loadingMembers ? (
+                  <div className="flex justify-center py-10"><Loader2 className="animate-spin text-brand-peach" /></div>
+                ) : (
+                  members.map((member) => (
+                    <div key={member.id} className="flex items-center gap-4 p-5 rounded-3xl bg-brand-warm-50/50 border border-brand-warm-100 hover:bg-white hover:shadow-soft transition-all group">
+                      <div 
+                        className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm"
+                        style={{ backgroundColor: member.avatar_color || '#FFB3A7' }}
+                      >
+                        {member.full_name[0]}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-brand-warm-800">{member.full_name}</h4>
+                          {member.id === user?.id && <span className="text-[10px] bg-brand-peach/10 text-brand-peach px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Me</span>}
+                        </div>
+                        <p className="text-xs text-brand-warm-500 font-medium uppercase tracking-widest mt-0.5">{member.role}</p>
+                      </div>
+                      {user?.role === 'parent' && member.id !== user?.id && (
+                        <div className="flex items-center gap-2">
+                          <select 
+                            className="bg-transparent text-xs font-bold text-brand-peach outline-none"
+                            value={member.role}
+                            onChange={async (e) => {
+                              await api.patch(`/auth/members/${member.id}/role?new_role=${e.target.value}`);
+                              fetchMembers();
+                            }}
+                          >
+                            <option value="parent">Parent</option>
+                            <option value="kid">Kid</option>
+                            <option value="elder">Elder</option>
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
 
               <div className="p-8 bg-brand-warm-50 rounded-3xl border border-brand-warm-100">
@@ -151,7 +269,7 @@ const Settings: React.FC = () => {
                 </h4>
                 <div className="flex items-center gap-4">
                   <code className="flex-1 bg-white px-6 py-4 rounded-2xl font-mono text-xl font-bold tracking-widest text-brand-peach border border-brand-warm-200">
-                    HUB-4291-X
+                    {user?.family?.invite_code || 'HUB-XXXX-X'}
                   </code>
                   <button className="btn-primary px-8">Copy</button>
                 </div>
@@ -161,6 +279,24 @@ const Settings: React.FC = () => {
           )}
         </div>
       </div>
+    </div>
+  );
+};
+
+const ToggleItem = ({ title, description, defaultChecked }: { title: string, description: string, defaultChecked?: boolean }) => {
+  const [checked, setChecked] = useState(defaultChecked || false);
+  return (
+    <div className="p-6 glass rounded-3xl flex items-center justify-between">
+      <div>
+        <p className="font-bold text-brand-warm-800">{title}</p>
+        <p className="text-xs text-brand-warm-500">{description}</p>
+      </div>
+      <button 
+        onClick={() => setChecked(!checked)}
+        className={`w-12 h-6 rounded-full p-1 transition-all ${checked ? 'bg-brand-peach' : 'bg-brand-warm-200'}`}
+      >
+        <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${checked ? 'translate-x-6' : 'translate-x-0'}`} />
+      </button>
     </div>
   );
 };

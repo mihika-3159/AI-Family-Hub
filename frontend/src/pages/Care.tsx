@@ -8,7 +8,10 @@ import {
   Plus, 
   Sparkles,
   TrendingUp,
-  BrainCircuit
+  BrainCircuit,
+  Pill,
+  Trash2,
+  Clock
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import api from '../lib/api';
@@ -16,8 +19,17 @@ import api from '../lib/api';
 const Care: React.FC = () => {
   const [mood, setMood] = useState<number>(3);
   const [entries, setEntries] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showCheckIn, setShowCheckIn] = useState(false);
+  const [medications, setMedications] = useState<any[]>([]);
+  const [showAddMed, setShowAddMed] = useState(false);
+  const [newMed, setNewMed] = useState({
+    name: '',
+    dosage: '',
+    frequency: 'Daily',
+    time_of_day: '',
+    instructions: ''
+  });
+  const { user } = useAuth();
 
   const moods = [
     { emoji: '😔', value: 1, label: 'Low' },
@@ -38,8 +50,18 @@ const Care: React.FC = () => {
     }
   };
 
+  const fetchMedications = async () => {
+    try {
+      const res = await api.get('/medications/');
+      setMedications(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchEntries();
+    fetchMedications();
   }, []);
 
   const handleCheckIn = async () => {
@@ -138,19 +160,62 @@ const Care: React.FC = () => {
 
         {/* Sidebar stats */}
         <div className="space-y-6">
+          {/* Medication Management */}
           <div className="glass p-6 rounded-3xl">
-            <h3 className="font-bold text-brand-warm-800 mb-6">Daily Habits</h3>
-            <div className="space-y-6">
-              <HabitItem icon={<Droplets className="text-brand-sky" />} label="Hydration" value="6/8 glasses" progress={75} />
-              <HabitItem icon={<Moon className="text-brand-lavender" />} label="Sleep" value="7.5 hours" progress={85} />
-              <HabitItem icon={<Activity className="text-brand-mint" />} label="Exercise" value="30 mins" progress={100} />
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-bold text-brand-warm-800 flex items-center gap-2">
+                <Pill size={18} className="text-brand-peach" /> Family Medications
+              </h3>
+              {user?.role === 'parent' && (
+                <button onClick={() => setShowAddMed(true)} className="text-xs font-bold text-brand-peach hover:underline flex items-center gap-1">
+                  <Plus size={14} /> Add New
+                </button>
+              )}
+            </div>
+            <div className="space-y-4">
+              {medications.length > 0 ? (
+                medications.map((med) => (
+                  <div key={med.id} className="flex items-center justify-between p-4 bg-brand-warm-50/50 rounded-2xl border border-brand-warm-100">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-brand-peach shadow-sm">
+                        <Pill size={18} />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-brand-warm-800">{med.name}</h4>
+                        <p className="text-xs text-brand-warm-500">{med.dosage} • {med.frequency}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right mr-4">
+                        <p className="text-[10px] font-bold text-brand-warm-400 uppercase tracking-widest">Scheduled</p>
+                        <p className="text-xs font-bold text-brand-warm-700">{med.time_of_day || 'As needed'}</p>
+                      </div>
+                      {user?.role === 'parent' && (
+                        <button 
+                          onClick={async () => {
+                            await api.delete(`/medications/${med.id}`);
+                            fetchMedications();
+                          }}
+                          className="p-2 text-brand-warm-300 hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-brand-warm-400 text-center py-4">No medications logged.</p>
+              )}
             </div>
           </div>
 
           <div className="glass p-6 rounded-3xl bg-brand-peach/5 border-brand-peach/10">
             <h4 className="text-xs font-bold text-brand-peach mb-3 uppercase tracking-wider">Health Reminder</h4>
             <p className="text-sm text-brand-warm-700 font-medium">
-              "Don't forget to take your vitamins at 8 PM tonight!"
+              {medications.length > 0 
+                ? `Next up: ${medications[0].name} scheduled for today.`
+                : "All clear! No pending health tasks."}
             </p>
           </div>
         </div>
@@ -187,6 +252,79 @@ const Care: React.FC = () => {
             <div className="flex gap-3">
               <button onClick={() => setShowCheckIn(false)} className="flex-1 btn-secondary">Maybe Later</button>
               <button onClick={handleCheckIn} className="flex-1 btn-primary">Save Check-in</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+      {/* Add Medication Modal */}
+      {showAddMed && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-brand-warm-900/40 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-md bg-white p-10 rounded-4xl shadow-2xl"
+          >
+            <h2 className="text-2xl font-bold text-brand-warm-900 mb-6">Add Medication</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-brand-warm-500 uppercase tracking-widest mb-2 block">Medicine Name</label>
+                <input 
+                  type="text" 
+                  className="w-full px-4 py-3 bg-brand-warm-50 border border-brand-warm-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach"
+                  placeholder="e.g., Vitamin C"
+                  value={newMed.name}
+                  onChange={(e) => setNewMed({...newMed, name: e.target.value})}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-brand-warm-500 uppercase tracking-widest mb-2 block">Dosage</label>
+                  <input 
+                    type="text" 
+                    className="w-full px-4 py-3 bg-brand-warm-50 border border-brand-warm-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach"
+                    placeholder="e.g., 500mg"
+                    value={newMed.dosage}
+                    onChange={(e) => setNewMed({...newMed, dosage: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-brand-warm-500 uppercase tracking-widest mb-2 block">Frequency</label>
+                  <select 
+                    className="w-full px-4 py-3 bg-brand-warm-50 border border-brand-warm-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach"
+                    value={newMed.frequency}
+                    onChange={(e) => setNewMed({...newMed, frequency: e.target.value})}
+                  >
+                    <option value="Daily">Daily</option>
+                    <option value="Twice Daily">Twice Daily</option>
+                    <option value="Weekly">Weekly</option>
+                    <option value="Every 4 Hours">Every 4 Hours</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-brand-warm-500 uppercase tracking-widest mb-2 block">Time of Day</label>
+                <input 
+                  type="text" 
+                  className="w-full px-4 py-3 bg-brand-warm-50 border border-brand-warm-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach"
+                  placeholder="e.g., 08:00, 20:00"
+                  value={newMed.time_of_day}
+                  onChange={(e) => setNewMed({...newMed, time_of_day: e.target.value})}
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button onClick={() => setShowAddMed(false)} className="flex-1 btn-secondary">Cancel</button>
+                <button 
+                  onClick={async () => {
+                    await api.post('/medications/', { ...newMed, user_id: user?.id });
+                    setShowAddMed(false);
+                    setNewMed({ name: '', dosage: '', frequency: 'Daily', time_of_day: '', instructions: '' });
+                    fetchMedications();
+                  }} 
+                  className="flex-1 btn-primary"
+                >
+                  Save Medicine
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>
