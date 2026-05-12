@@ -12,9 +12,7 @@ app = FastAPI(
 )
 
 # Initialize Database
-@app.on_event("startup")
-def startup():
-    init_db()
+init_db()
 
 # CORS
 app.add_middleware(
