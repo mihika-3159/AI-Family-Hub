@@ -33,6 +33,10 @@ async def get_family_insights(db: Session = Depends(get_db), current_user: User 
     prompt = f"Based on this family data: {context}, provide 2 short, conversational insights or suggestions for the family. Format as a JSON list of strings."
     response = await ai_service.get_chat_response(prompt)
     return {"insights": response}
+
+@router.post("/chat")
+async def chat(request: ChatRequest, current_user: User = Depends(get_current_user)):
+    user_context = f"User: {current_user.full_name}, Role: {current_user.role}. "
     if current_user.is_senior:
         user_context += "User is a senior citizen. "
     

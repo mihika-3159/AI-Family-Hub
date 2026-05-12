@@ -12,6 +12,8 @@ from app.core.config import get_settings
 import random
 import string
 
+settings = get_settings()
+
 router = APIRouter()
 
 @router.get("/members", response_model=List[UserSchema])
