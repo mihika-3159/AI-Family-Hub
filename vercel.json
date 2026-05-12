@@ -27,7 +27,7 @@
       "dest": "/frontend/favicon.svg"
     },
     {
-      "src": "/((?!api|assets|favicon.svg).* )",
+      "src": "/((?!api|assets|favicon.svg).*)",
       "dest": "/frontend/index.html"
     }
   ]
