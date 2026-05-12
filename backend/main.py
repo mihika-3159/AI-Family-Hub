@@ -11,8 +11,7 @@ app = FastAPI(
     version=settings.APP_VERSION,
 )
 
-# Initialize Database
-init_db()
+# Initialize Database (moved to lazy init in session.py)
 
 # CORS
 app.add_middleware(

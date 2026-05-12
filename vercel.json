@@ -1,34 +1,17 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
+      "source": "/api/(.*)",
+      "destination": "/backend/main.py"
     },
     {
-      "src": "backend/main.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/main.py"
+      "source": "/assets/(.*)",
+      "destination": "/frontend/assets/$1"
     },
     {
-      "src": "/assets/(.*)",
-      "dest": "/frontend/assets/$1"
-    },
-    {
-      "src": "/favicon.svg",
-      "dest": "/frontend/favicon.svg"
-    },
-    {
-      "src": "/((?!api|assets|favicon.svg).*)",
-      "dest": "/frontend/index.html"
+      "source": "/((?!api|assets|favicon.svg).*)",
+      "destination": "/frontend/index.html"
     }
   ]
 }
