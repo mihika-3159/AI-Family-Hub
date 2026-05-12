@@ -75,7 +75,7 @@ const MemoryVault: React.FC = () => {
             <input 
               type="text" 
               placeholder="Search memories..."
-              className="pl-12 pr-4 py-3 bg-white border border-brand-warm-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach transition-all"
+              className="pl-12 pr-4 py-3 bg-white dark:bg-brand-warm-900 border border-brand-warm-200 dark:border-brand-warm-700 rounded-2xl outline-none focus:ring-2 focus:ring-brand-peach transition-all"
             />
           </div>
           <button onClick={() => setShowAdd(true)} className="btn-primary flex items-center gap-2">
@@ -182,7 +182,7 @@ const MemoryVault: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-lg bg-white p-10 rounded-4xl shadow-2xl"
+            className="w-full max-w-lg bg-white dark:bg-brand-warm-900 p-10 rounded-4xl shadow-2xl"
           >
             <h2 className="text-2xl font-bold text-brand-warm-900 mb-6">Capture a Moment</h2>
             <form onSubmit={handleAddMemory} className="space-y-4">

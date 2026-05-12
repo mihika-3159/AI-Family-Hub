@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Heart, 
-  Droplets, 
-  Moon, 
-  Activity, 
   Plus, 
   Sparkles,
   TrendingUp,
@@ -180,7 +176,7 @@ const Care: React.FC = () => {
                 medications.map((med) => (
                   <div key={med.id} className="flex items-center justify-between p-4 bg-brand-warm-50/50 rounded-2xl border border-brand-warm-100">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-brand-peach shadow-sm">
+                      <div className="w-10 h-10 bg-white dark:bg-brand-warm-700 rounded-xl flex items-center justify-center text-brand-peach shadow-sm">
                         <Pill size={18} />
                       </div>
                       <div>
@@ -230,7 +226,7 @@ const Care: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md bg-white p-10 rounded-4xl shadow-2xl text-center"
+            className="w-full max-w-md bg-white dark:bg-brand-warm-900 p-10 rounded-4xl shadow-2xl text-center"
           >
             <h2 className="text-2xl font-bold text-brand-warm-900 mb-2">How are you feeling?</h2>
             <p className="text-brand-warm-500 mb-10">Take a moment to check in with yourself.</p>
@@ -265,7 +261,7 @@ const Care: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md bg-white p-10 rounded-4xl shadow-2xl"
+            className="w-full max-w-md bg-white dark:bg-brand-warm-900 p-10 rounded-4xl shadow-2xl"
           >
             <h2 className="text-2xl font-bold text-brand-warm-900 mb-6">Add Medication</h2>
             <div className="space-y-4">
@@ -344,7 +340,7 @@ const HabitItem = ({ icon, label, value, progress }: { icon: React.ReactNode, la
       </div>
       <span className="text-brand-warm-500 font-medium">{value}</span>
     </div>
-    <div className="h-2 bg-brand-warm-100 rounded-full overflow-hidden">
+    <div className="h-2 bg-brand-warm-100 dark:bg-brand-warm-800 rounded-full overflow-hidden">
       <motion.div 
         initial={{ width: 0 }}
         animate={{ width: `${progress}%` }}

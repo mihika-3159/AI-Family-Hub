@@ -5,7 +5,6 @@ import {
   Users, 
   Clock, 
   DollarSign, 
-  Search, 
   Trophy,
   Flame,
   Star,

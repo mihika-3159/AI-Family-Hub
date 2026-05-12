@@ -86,7 +86,7 @@ const Settings: React.FC = () => {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 glass p-10 rounded-4xl bg-white shadow-soft">
+        <div className="flex-1 glass p-10 rounded-4xl bg-white dark:bg-brand-warm-900 shadow-soft">
           {activeTab === 'profile' && (
             <div className="space-y-8">
               <div className="flex items-center gap-6">
@@ -193,7 +193,7 @@ const Settings: React.FC = () => {
                       <p className="text-xs text-brand-warm-500">Choose between light and dark mode for your experience.</p>
                     </div>
                   </div>
-                  <div className="flex bg-brand-warm-100 p-1 rounded-xl">
+                  <div className="flex bg-brand-warm-100 dark:bg-brand-warm-800 p-1 rounded-xl">
                     <button 
                       onClick={() => {
                         localStorage.setItem('theme', 'light');
@@ -296,7 +296,7 @@ const Settings: React.FC = () => {
                   <Share2 size={18} className="text-brand-peach" /> Invite Code
                 </h4>
                 <div className="flex items-center gap-4">
-                  <code className="flex-1 bg-white px-6 py-4 rounded-2xl font-mono text-xl font-bold tracking-widest text-brand-peach border border-brand-warm-200">
+                  <code className="flex-1 bg-white dark:bg-brand-warm-800 px-6 py-4 rounded-2xl font-mono text-xl font-bold tracking-widest text-brand-peach border border-brand-warm-200 dark:border-brand-warm-700">
                     {user?.family?.invite_code || 'HUB-XXXX-X'}
                   </code>
                   <button className="btn-primary px-8">Copy</button>

@@ -186,7 +186,7 @@ const Dashboard: React.FC = () => {
             <div className="space-y-4">
               {familyInsights.map((insight, i) => (
                 <div key={i} className={`flex gap-4 p-4 rounded-2xl border ${i === 0 ? 'bg-brand-peach/5 border-brand-peach/10' : 'bg-brand-mint/5 border-brand-mint/10'}`}>
-                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">{i === 0 ? '💡' : '🍎'}</div>
+                  <div className="w-10 h-10 bg-white dark:bg-brand-warm-700 rounded-xl flex items-center justify-center shadow-sm">{i === 0 ? '💡' : '🍎'}</div>
                   <p className="text-brand-warm-700 text-sm leading-relaxed">
                     "{insight}"
                   </p>
@@ -194,7 +194,7 @@ const Dashboard: React.FC = () => {
               ))}
               {familyInsights.length === 0 && (
                  <div className="flex gap-4 p-4 bg-brand-peach/5 rounded-2xl border border-brand-peach/10">
-                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">💡</div>
+                  <div className="w-10 h-10 bg-white dark:bg-brand-warm-700 rounded-xl flex items-center justify-center shadow-sm">💡</div>
                   <p className="text-brand-warm-700 text-sm leading-relaxed">
                     "Welcome back! I'm analyzing your family data to provide fresh insights."
                   </p>
@@ -239,8 +239,8 @@ const Dashboard: React.FC = () => {
               <h3 className="font-bold text-brand-warm-800">AI Assistant</h3>
             </div>
             
-            <div className="flex-1 bg-brand-warm-50/50 rounded-2xl p-4 overflow-y-auto mb-4 text-sm text-brand-warm-600">
-              <p className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm mb-4">
+            <div className="flex-1 bg-brand-warm-50/50 dark:bg-black/20 rounded-2xl p-4 overflow-y-auto mb-4 text-sm text-brand-warm-600 dark:text-brand-warm-300">
+              <p className="bg-white dark:bg-brand-warm-700 p-3 rounded-2xl rounded-tl-none shadow-sm mb-4">
                 Hello! I'm your AI Family Assistant. How can I help you today?
               </p>
             </div>
@@ -300,7 +300,7 @@ const Dashboard: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-lg bg-white p-10 rounded-4xl shadow-2xl"
+            className="w-full max-w-lg bg-white dark:bg-brand-warm-900 p-10 rounded-4xl shadow-2xl"
           >
             <h2 className="text-2xl font-bold text-brand-warm-900 mb-6">Family Update</h2>
             <textarea
@@ -331,7 +331,7 @@ const Dashboard: React.FC = () => {
 
 const StatCard = ({ icon, label, value }: { icon: React.ReactNode, label: string, value: number }) => (
   <div className="glass p-6 rounded-3xl text-center card-hover">
-    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm mx-auto mb-3">
+    <div className="w-10 h-10 bg-white dark:bg-brand-warm-700 rounded-xl flex items-center justify-center shadow-sm mx-auto mb-3">
       {icon}
     </div>
     <p className="text-2xl font-bold text-brand-warm-800">{value}</p>
@@ -341,12 +341,12 @@ const StatCard = ({ icon, label, value }: { icon: React.ReactNode, label: string
 
 const ActivityItem = ({ icon, text, time }: { icon: string, text: string, time: string }) => (
   <div className="flex items-center gap-4 p-4 hover:bg-white rounded-2xl transition-all cursor-pointer group">
-    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-xl shadow-sm group-hover:scale-110 transition-transform">
+    <div className="w-12 h-12 bg-white dark:bg-brand-warm-700 rounded-xl flex items-center justify-center text-xl shadow-sm group-hover:scale-110 transition-transform">
       {icon}
     </div>
     <div className="flex-1">
-      <p className="text-sm font-medium text-brand-warm-700">{text}</p>
-      <p className="text-xs text-brand-warm-400">{time}</p>
+      <p className="text-sm font-medium text-brand-warm-700 dark:text-brand-warm-200">{text}</p>
+      <p className="text-xs text-brand-warm-400 dark:text-brand-warm-500">{time}</p>
     </div>
     <ChevronRight size={16} className="text-brand-warm-300 group-hover:text-brand-peach" />
   </div>

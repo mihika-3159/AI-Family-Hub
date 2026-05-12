@@ -235,7 +235,7 @@ const Organizer: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md bg-white p-8 rounded-4xl shadow-2xl"
+            className="w-full max-w-md bg-white dark:bg-brand-warm-900 p-8 rounded-4xl shadow-2xl"
           >
             <h2 className="text-2xl font-bold text-brand-warm-900 mb-6">New Family Task</h2>
             <form onSubmit={handleAddTask} className="space-y-4">

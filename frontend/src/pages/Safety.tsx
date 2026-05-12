@@ -10,7 +10,6 @@ import {
   BookOpen,
   CheckCircle2,
   Circle,
-  Search,
   Plus
 } from 'lucide-react';
 import api from '../lib/api';
@@ -111,7 +110,7 @@ const Safety: React.FC = () => {
               >
                 <button onClick={() => setTips(null)} className="absolute top-4 right-4 text-brand-warm-400">×</button>
                 <div className="flex gap-4 mb-6">
-                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm text-brand-mint"><Sparkles size={20} /></div>
+                  <div className="w-10 h-10 bg-white dark:bg-brand-warm-700 rounded-xl flex items-center justify-center shadow-sm text-brand-mint"><Sparkles size={20} /></div>
                   <h3 className="text-xl font-bold text-brand-warm-800">AI Safety Insights</h3>
                 </div>
                 <div className="text-brand-warm-700 leading-relaxed italic whitespace-pre-wrap">
@@ -123,7 +122,7 @@ const Safety: React.FC = () => {
         )}
 
         {activeTab === 'checklist' && (
-          <div className="lg:col-span-2 glass p-10 rounded-4xl bg-white shadow-soft">
+          <div className="lg:col-span-2 glass p-10 rounded-4xl bg-white dark:bg-brand-warm-900 shadow-soft">
             <h3 className="text-2xl font-bold text-brand-warm-900 mb-8">Family Security Checklist</h3>
             <div className="space-y-4">
               {checklists.map((item) => (
@@ -146,7 +145,7 @@ const Safety: React.FC = () => {
 
         {activeTab === 'screentime' && (
           <div className="lg:col-span-2 space-y-8">
-            <div className="glass p-10 rounded-4xl bg-white shadow-soft text-center">
+            <div className="glass p-10 rounded-4xl bg-white dark:bg-brand-warm-900 shadow-soft text-center">
               <div className="w-24 h-24 bg-brand-sky/10 text-brand-sky rounded-full flex items-center justify-center mx-auto mb-6">
                 <Smartphone size={40} />
               </div>
@@ -186,7 +185,7 @@ const Safety: React.FC = () => {
           <div className="glass p-8 rounded-4xl text-center">
             <div className="relative w-20 h-20 mx-auto mb-6">
               <svg className="w-full h-full transform -rotate-90">
-                <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-brand-warm-100" />
+                <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-brand-warm-100 dark:text-brand-warm-800" />
                 <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-brand-mint" strokeDasharray="226" strokeDashoffset="45" />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center font-bold text-brand-warm-800 text-lg">
@@ -221,7 +220,7 @@ const SafetyCard = ({ icon, title, description, onClick }: { icon: React.ReactNo
     }}
     className="p-8 glass rounded-3xl card-hover group cursor-pointer"
   >
-    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform">
+    <div className="w-12 h-12 bg-white dark:bg-brand-warm-700 rounded-2xl flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform">
       {icon}
     </div>
     <h3 className="text-xl font-bold text-brand-warm-900 mb-3">{title}</h3>
