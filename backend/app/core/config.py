@@ -13,7 +13,10 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     # Database
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./family_hub.db")
+    DATABASE_URL: str = os.getenv(
+        "DATABASE_URL", 
+        "sqlite:////tmp/family_hub.db" if os.getenv("VERCEL") else "sqlite:///./family_hub.db"
+    )
 
     # JWT Auth
     SECRET_KEY: str = os.getenv("SECRET_KEY", "change-this-in-production")
