@@ -39,43 +39,53 @@ from app.models.family import Family
 
 @router.post("/register", response_model=UserSchema)
 def register(request: RegisterRequest, db: Session = Depends(get_db)):
-    # Check if user exists
-    if db.query(User).filter(User.email == request.email).first():
-        raise HTTPException(status_code=400, detail="Email already registered")
-    if db.query(User).filter(User.username == request.username).first():
-        raise HTTPException(status_code=400, detail="Username already taken")
-    
-    family_id = None
-    if request.invite_code:
-        family = db.query(Family).filter(Family.invite_code == request.invite_code).first()
-        if not family:
-            raise HTTPException(status_code=400, detail="Invalid invite code")
-        family_id = family.id
-    else:
-        # Create a new family if no invite code
-        new_family = Family(
-            name=f"{request.full_name}'s Family",
-            invite_code="".join(random.choices(string.ascii_uppercase + string.digits, k=8))
-        )
-        db.add(new_family)
-        db.commit()
-        db.refresh(new_family)
-        family_id = new_family.id
+    try:
+        # Check if user exists
+        if db.query(User).filter(User.email == request.email).first():
+            raise HTTPException(status_code=400, detail="Email already registered")
+        if db.query(User).filter(User.username == request.username).first():
+            raise HTTPException(status_code=400, detail="Username already taken")
+        
+        family_id = None
+        if request.invite_code:
+            family = db.query(Family).filter(Family.invite_code == request.invite_code).first()
+            if not family:
+                raise HTTPException(status_code=400, detail="Invalid invite code")
+            family_id = family.id
+        else:
+            # Create a new family if no invite code
+            new_family = Family(
+                name=f"{request.full_name}'s Family",
+                invite_code="".join(random.choices(string.ascii_uppercase + string.digits, k=8))
+            )
+            db.add(new_family)
+            db.commit()
+            db.refresh(new_family)
+            family_id = new_family.id
 
-    # Create user
-    new_user = User(
-        email=request.email,
-        username=request.username,
-        full_name=request.full_name,
-        hashed_password=get_password_hash(request.password),
-        is_senior=request.is_senior,
-        role=UserRole.ELDER if request.is_senior else UserRole.PARENT,
-        family_id=family_id
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+        # Create user
+        new_user = User(
+            email=request.email,
+            username=request.username,
+            full_name=request.full_name,
+            hashed_password=get_password_hash(request.password),
+            is_senior=request.is_senior,
+            role=UserRole.ELDER if request.is_senior else UserRole.PARENT,
+            family_id=family_id
+        )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        return new_user
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        db.rollback()
+        print(f"Registration error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Registration failed: {str(e)}"
+        )
 
 @router.post("/login", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):

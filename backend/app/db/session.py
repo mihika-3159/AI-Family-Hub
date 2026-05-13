@@ -20,8 +20,12 @@ def get_db():
     """Dependency that provides a database session."""
     global _db_initialized
     if not _db_initialized:
-        init_db()
-        _db_initialized = True
+        try:
+            init_db()
+            _db_initialized = True
+        except Exception as e:
+            print(f"Database initialization error: {str(e)}")
+            raise e
         
     db = SessionLocal()
     try:

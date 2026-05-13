@@ -50,7 +50,14 @@ const Login: React.FC = () => {
         setError('Account created! Please login.');
       }
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'An error occurred');
+      console.error('Registration/Login error:', err);
+      const errorMessage = err.response?.data?.detail || 
+                          err.response?.data?.message || 
+                          (typeof err.response?.data === 'string' ? err.response.data : null) ||
+                          err.message || 
+                          'An unknown error occurred';
+      const status = err.response?.status ? ` (Status: ${err.response.status})` : '';
+      setError(`${errorMessage}${status}`);
     } finally {
       setLoading(false);
     }
