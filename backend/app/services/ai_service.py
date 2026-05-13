@@ -31,7 +31,16 @@ class AIService:
             return f"The AI assistant is taking a short break. Please try again in {int(wait_time)} seconds."
 
         # Try primary model, fallback if not found
-        models_to_try = [self.model_name, "gemini-1.5-flash-latest", "gemini-pro", "gemini-1.0-pro"]
+        models_to_try = [
+            self.model_name, 
+            f"models/{self.model_name}",
+            "gemini-1.5-flash-latest",
+            "models/gemini-1.5-flash-latest",
+            "gemini-pro", 
+            "models/gemini-pro",
+            "gemini-1.0-pro",
+            "models/gemini-1.0-pro"
+        ]
         last_error = None
 
         for model_name in models_to_try:

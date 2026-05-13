@@ -66,3 +66,25 @@ async def get_weekly_summary(db: Session = Depends(get_db), current_user: User =
     
     response = await ai_service.get_weekly_summary(json.dumps(data_summary))
     return {"summary": response}
+@router.get("/list-models")
+async def list_models():
+    """Debug endpoint to list available Gemini models."""
+    try:
+        import google.generativeai as genai
+        from app.core.config import get_settings
+        settings = get_settings()
+        if not settings.GEMINI_API_KEY:
+            return {"error": "GEMINI_API_KEY not set"}
+            
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        models = []
+        for m in genai.list_models():
+            models.append({
+                "name": m.name,
+                "version": m.version,
+                "display_name": m.display_name,
+                "supported_methods": m.supported_generation_methods
+            })
+        return {"models": models}
+    except Exception as e:
+        return {"error": str(e)}
