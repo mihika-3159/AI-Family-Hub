@@ -183,14 +183,12 @@ const Login: React.FC = () => {
               <input
                 type="password"
                 required
-                maxLength={72}
                 placeholder="••••••••"
                 className="w-full pl-12 pr-4 py-3 bg-white/50 border border-brand-warm-200 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
             </div>
-            {!isLogin && <p className="text-[10px] text-brand-warm-400 ml-1">Max 72 characters</p>}
           </div>
 
           {!isLogin && (
