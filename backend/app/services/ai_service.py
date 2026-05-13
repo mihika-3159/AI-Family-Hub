@@ -30,23 +30,34 @@ class AIService:
             wait_time = self.rate_limiter.get_wait_time()
             return f"The AI assistant is taking a short break. Please try again in {int(wait_time)} seconds."
 
-        try:
-            model = genai.GenerativeModel(
-                model_name=self.model_name,
-                system_instruction=system_instruction
-            )
-            
-            # Record request for rate limiting
-            self.rate_limiter.record_request()
-            
-            # Use async version of generate_content
-            response = await model.generate_content_async(prompt)
-            return response.text
-        except Exception as e:
-            logger.error(f"Gemini API error: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            return f"AI Error: {str(e)}. Please check your GEMINI_API_KEY and logs."
+        # Try primary model, fallback if not found
+        models_to_try = [self.model_name, "gemini-pro", "gemini-1.5-pro"]
+        last_error = None
+
+        for model_name in models_to_try:
+            try:
+                model = genai.GenerativeModel(
+                    model_name=model_name,
+                    system_instruction=system_instruction
+                )
+                
+                # Use async version of generate_content
+                response = await model.generate_content_async(prompt)
+                
+                # Record successful request for rate limiting
+                self.rate_limiter.record_request()
+                return response.text
+            except Exception as e:
+                last_error = e
+                logger.warning(f"Gemini model {model_name} failed: {str(e)}. Trying next...")
+                continue
+
+        logger.error(f"All Gemini models failed. Last error: {str(last_error)}")
+        return f"AI Error: {str(last_error)}. Please check your GEMINI_API_KEY and model availability."
+
+    async def get_chat_response(self, message: str, context: str = "") -> str:
+        """Alias for chat_with_assistant for backward compatibility."""
+        return await self.chat_with_assistant(message, context)
 
     async def get_chore_suggestions(self, family_context: str, tasks: str, members: str) -> str:
         from app.templates.ai_prompts import CHORE_OPTIMIZATION_PROMPT
