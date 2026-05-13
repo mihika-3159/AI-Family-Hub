@@ -51,11 +51,24 @@ const Login: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Registration/Login error:', err);
-      const errorMessage = err.response?.data?.detail || 
-                          err.response?.data?.message || 
-                          (typeof err.response?.data === 'string' ? err.response.data : null) ||
-                          err.message || 
-                          'An unknown error occurred';
+      let errorMessage = 'An unknown error occurred';
+      
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.response.data.detail) {
+          errorMessage = typeof err.response.data.detail === 'string' 
+            ? err.response.data.detail 
+            : JSON.stringify(err.response.data.detail);
+        } else if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        } else {
+          errorMessage = JSON.stringify(err.response.data);
+        }
+      } else {
+        errorMessage = err.message || 'An unknown error occurred';
+      }
+
       const status = err.response?.status ? ` (Status: ${err.response.status})` : '';
       setError(`${errorMessage}${status}`);
     } finally {

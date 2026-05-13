@@ -34,6 +34,19 @@ app.include_router(notifications.router, prefix="/api/notifications", tags=["not
 app.include_router(export.router, prefix="/api/export", tags=["export"])
 app.include_router(medications.router, prefix="/api/medications", tags=["medications"])
 
+from fastapi import Request
+from fastapi.responses import JSONResponse
+import traceback
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"Global exception caught: {str(exc)}")
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Internal Server Error: {str(exc)}", "traceback": traceback.format_exc()},
+    )
+
 @app.get("/")
 def root():
     return {"message": "Welcome to AI Family Hub API", "version": settings.APP_VERSION}

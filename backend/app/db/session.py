@@ -25,7 +25,8 @@ def get_db():
             _db_initialized = True
         except Exception as e:
             print(f"Database initialization error: {str(e)}")
-            raise e
+            from fastapi import HTTPException
+            raise HTTPException(status_code=500, detail=f"Database initialization failed: {str(e)}")
         
     db = SessionLocal()
     try:
