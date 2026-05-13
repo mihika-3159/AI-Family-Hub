@@ -32,18 +32,27 @@ class AIService:
 
         # Try primary model, fallback if not found
         models_to_try = [
-            self.model_name, 
-            f"models/{self.model_name}",
+            self.model_name,
+            "gemini-3.1-flash-lite",
+            "gemini-2.5-flash-lite",
+            "gemini-2.5-flash",
+            "gemini-2.5-pro",
             "gemini-1.5-flash-latest",
-            "models/gemini-1.5-flash-latest",
-            "gemini-pro", 
-            "models/gemini-pro",
-            "gemini-1.0-pro",
-            "models/gemini-1.0-pro"
+            "gemini-1.5-flash",
+            "gemini-1.5-pro",
+            "gemini-pro"
         ]
+        
+        # Add prefixed versions
+        full_list = []
+        for m in models_to_try:
+            full_list.append(m)
+            if not m.startswith("models/"):
+                full_list.append(f"models/{m}")
+        
         last_error = None
 
-        for model_name in models_to_try:
+        for model_name in full_list:
             try:
                 # Some environments/models have issues with system_instruction in GenerativeModel constructor
                 # We'll use a simpler initialization for now to isolate the 404 issue
