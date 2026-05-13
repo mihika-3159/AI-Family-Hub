@@ -7,14 +7,23 @@ import os
 settings = get_settings()
 
 db_url = settings.DATABASE_URL
+# Handle postgres:// to postgresql:// conversion for SQLAlchemy 1.4+
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+# Remove ?pgbouncer=true or similar params that psycopg2 doesn't like
+if "?" in db_url:
+    base_url, params = db_url.split("?", 1)
+    # Filter out pgbouncer param
+    clean_params = "&".join([p for p in params.split("&") if not p.startswith("pgbouncer=")])
+    db_url = f"{base_url}?{clean_params}" if clean_params else base_url
 
 engine = create_engine(
     db_url,
     connect_args={"check_same_thread": False} if "sqlite" in db_url else {},
     echo=settings.DEBUG,
-    pool_pre_ping=True  # Ensure connections are alive
+    pool_pre_ping=True,
+    pool_recycle=300
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
