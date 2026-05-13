@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { useAuth } from './hooks/useAuth';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -31,22 +32,25 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        
-        <Route path="/app" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-          <Route index element={<Dashboard />} />
-          <Route path="organizer" element={<Organizer />} />
-          <Route path="care" element={<Care />} />
-          <Route path="memory" element={<MemoryVault />} />
-          <Route path="bonding" element={<Bonding />} />
-          <Route path="safety" element={<Safety />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-      </Routes>
-    </Router>
+    <>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          
+          <Route path="/app" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+            <Route index element={<Dashboard />} />
+            <Route path="organizer" element={<Organizer />} />
+            <Route path="care" element={<Care />} />
+            <Route path="memory" element={<MemoryVault />} />
+            <Route path="bonding" element={<Bonding />} />
+            <Route path="safety" element={<Safety />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+        </Routes>
+      </Router>
+      <Analytics />
+    </>
   );
 }
 
