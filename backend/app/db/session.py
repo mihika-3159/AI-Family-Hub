@@ -2,6 +2,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.core.config import get_settings
+import os
 
 settings = get_settings()
 
@@ -21,10 +22,22 @@ def get_db():
     global _db_initialized
     if not _db_initialized:
         try:
+            # For SQLite in /tmp, ensure the directory exists (though it usually does)
+            if "sqlite" in settings.DATABASE_URL:
+                db_path = settings.DATABASE_URL.replace("sqlite:///", "")
+                if db_path.startswith("/"): # Absolute path
+                    db_dir = os.path.dirname(db_path)
+                    if db_dir and not os.path.exists(db_dir):
+                        os.makedirs(db_dir, exist_ok=True)
+            
+            print(f"Initializing database at {settings.DATABASE_URL}...")
             init_db()
             _db_initialized = True
+            print("Database initialized successfully.")
         except Exception as e:
             print(f"Database initialization error: {str(e)}")
+            import traceback
+            traceback.print_exc()
             from fastapi import HTTPException
             raise HTTPException(status_code=500, detail=f"Database initialization failed: {str(e)}")
         

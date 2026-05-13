@@ -13,10 +13,21 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     # Database
-    DATABASE_URL: str = os.getenv(
-        "DATABASE_URL", 
-        "sqlite:////tmp/family_hub.db" if os.getenv("VERCEL") else "sqlite:///./family_hub.db"
-    )
+    DATABASE_URL: str = ""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if not self.DATABASE_URL:
+            if os.getenv("VERCEL"):
+                self.DATABASE_URL = "sqlite:////tmp/family_hub.db"
+            else:
+                self.DATABASE_URL = "sqlite:///./family_hub.db"
+        
+        # In Vercel, SQLite must be in /tmp
+        if os.getenv("VERCEL") and "sqlite" in self.DATABASE_URL and "/tmp/" not in self.DATABASE_URL:
+            self.DATABASE_URL = "sqlite:////tmp/family_hub.db"
+            
+        print(f"Using DATABASE_URL: {self.DATABASE_URL}")
 
     # JWT Auth
     SECRET_KEY: str = os.getenv("SECRET_KEY", "change-this-in-production")
