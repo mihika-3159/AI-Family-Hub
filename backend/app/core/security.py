@@ -10,25 +10,27 @@ from app.core.config import get_settings
 from app.db.session import get_db
 
 settings = get_settings()
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
-
-
 import hashlib
 import base64
+import bcrypt
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     # Pre-hash with SHA-256 to support passwords > 72 chars
     sha256_hash = hashlib.sha256(plain_password.encode()).digest()
-    b64_hash = base64.b64encode(sha256_hash).decode()
-    return pwd_context.verify(b64_hash, hashed_password)
+    b64_hash = base64.b64encode(sha256_hash)
+    try:
+        return bcrypt.checkpw(b64_hash, hashed_password.encode())
+    except Exception:
+        return False
 
 
 def get_password_hash(password: str) -> str:
     # Pre-hash with SHA-256 to support passwords > 72 chars
     sha256_hash = hashlib.sha256(password.encode()).digest()
-    b64_hash = base64.b64encode(sha256_hash).decode()
-    return pwd_context.hash(b64_hash)
+    b64_hash = base64.b64encode(sha256_hash)
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(b64_hash, salt).decode()
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
