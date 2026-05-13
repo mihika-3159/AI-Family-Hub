@@ -14,6 +14,7 @@ import {
   Loader2
 } from 'lucide-react';
 import api from '../lib/api';
+import ReactMarkdown from 'react-markdown';
 
 const Safety: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'education' | 'checklist' | 'screentime'>('education');
@@ -115,13 +116,13 @@ const Safety: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="glass p-8 rounded-4xl bg-brand-mint/5 border-brand-mint/20 relative"
               >
-                <button onClick={() => setTips(null)} className="absolute top-4 right-4 text-brand-warm-400">×</button>
-                <div className="flex gap-4 mb-6">
+                <button onClick={() => setTips(null)} className="absolute top-4 right-4 text-brand-warm-400 p-2 hover:bg-brand-warm-100 rounded-full transition-colors">×</button>
+                <div className="flex gap-4 mb-6 border-b border-brand-mint/10 pb-4">
                   <div className="w-10 h-10 bg-white dark:bg-brand-warm-700 rounded-xl flex items-center justify-center shadow-sm text-brand-mint"><Sparkles size={20} /></div>
-                  <h3 className="text-xl font-bold text-brand-warm-800">AI Safety Insights</h3>
+                  <h3 className="text-xl font-bold text-brand-warm-800">AI Safety Hub</h3>
                 </div>
-                <div className="text-brand-warm-700 leading-relaxed italic whitespace-pre-wrap">
-                  {tips}
+                <div className="markdown-content">
+                  <ReactMarkdown>{tips}</ReactMarkdown>
                 </div>
               </motion.div>
             )}

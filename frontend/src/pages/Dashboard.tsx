@@ -14,6 +14,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import api from '../lib/api';
 import SpeechBot from '../components/ai/SpeechBot';
+import ReactMarkdown from 'react-markdown';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -164,7 +165,9 @@ const Dashboard: React.FC = () => {
               <h3 className="text-xl font-bold text-brand-warm-800 mb-4 flex items-center gap-2">
                 <Sparkles className="text-brand-peach" size={20} /> Weekly Family Summary
               </h3>
-              <p className="text-brand-warm-700 leading-relaxed italic whitespace-pre-wrap">"{weeklySummary}"</p>
+              <div className="markdown-content text-brand-warm-700 italic">
+                <ReactMarkdown>{weeklySummary}</ReactMarkdown>
+              </div>
             </motion.div>
           )}
 
