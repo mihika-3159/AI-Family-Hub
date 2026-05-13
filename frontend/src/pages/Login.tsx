@@ -69,6 +69,15 @@ const Login: React.FC = () => {
         errorMessage = err.message || 'An unknown error occurred';
       }
 
+      // User-friendly cleanup
+      if (errorMessage.includes('password cannot be longer than 72 bytes')) {
+        errorMessage = 'Password is too long. Please choose a password shorter than 72 characters.';
+      } else if (errorMessage.includes('Registration failed:')) {
+        errorMessage = errorMessage.replace('Registration failed:', '').trim();
+      } else if (errorMessage.includes('Internal Server Error:')) {
+        errorMessage = 'A server error occurred. Our team has been notified.';
+      }
+
       const status = err.response?.status ? ` (Status: ${err.response.status})` : '';
       setError(`${errorMessage}${status}`);
     } finally {
@@ -85,10 +94,10 @@ const Login: React.FC = () => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md glass p-10 rounded-4xl z-10"
+        className="w-full max-w-md glass p-10 rounded-4xl z-10 border border-white/40 shadow-2xl"
       >
         <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-brand-peach rounded-2xl flex items-center justify-center text-white shadow-soft mx-auto mb-6">
+          <div className="w-16 h-16 bg-gradient-to-br from-brand-peach to-orange-400 rounded-2xl flex items-center justify-center text-white shadow-lg mx-auto mb-6">
             <Sparkles size={32} />
           </div>
           <h2 className="text-3xl font-bold text-brand-warm-900 mb-2">
@@ -100,9 +109,22 @@ const Login: React.FC = () => {
         </div>
 
         {error && (
-          <div className={`p-4 rounded-xl text-sm mb-6 ${error.includes('created') ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
-            {error}
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`p-4 rounded-2xl text-sm mb-6 flex items-start gap-3 border ${
+              error.includes('created') 
+                ? 'bg-green-50/80 border-green-100 text-green-700' 
+                : 'bg-red-50/80 border-red-100 text-red-600'
+            }`}
+          >
+            <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+              error.includes('created') ? 'bg-green-100' : 'bg-red-100'
+            }`}>
+              {error.includes('created') ? '✓' : '!'}
+            </div>
+            <span className="font-medium">{error}</span>
+          </motion.div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -116,7 +138,7 @@ const Login: React.FC = () => {
                     type="text"
                     required
                     placeholder="John Doe"
-                    className="w-full pl-12 pr-4 py-3 bg-white dark:bg-brand-warm-800 border border-brand-warm-200 dark:border-brand-warm-700 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
+                    className="w-full pl-12 pr-4 py-3 bg-white/50 border border-brand-warm-200 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
                     value={formData.full_name}
                     onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                   />
@@ -130,7 +152,7 @@ const Login: React.FC = () => {
                     type="email"
                     required
                     placeholder="john@example.com"
-                    className="w-full pl-12 pr-4 py-3 bg-white dark:bg-brand-warm-800 border border-brand-warm-200 dark:border-brand-warm-700 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
+                    className="w-full pl-12 pr-4 py-3 bg-white/50 border border-brand-warm-200 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
@@ -147,7 +169,7 @@ const Login: React.FC = () => {
                 type="text"
                 required
                 placeholder="johndoe123"
-                className="w-full pl-12 pr-4 py-3 bg-white dark:bg-brand-warm-800 border border-brand-warm-200 dark:border-brand-warm-700 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
+                className="w-full pl-12 pr-4 py-3 bg-white/50 border border-brand-warm-200 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
               />
@@ -161,12 +183,14 @@ const Login: React.FC = () => {
               <input
                 type="password"
                 required
+                maxLength={72}
                 placeholder="••••••••"
-                className="w-full pl-12 pr-4 py-3 bg-white dark:bg-brand-warm-800 border border-brand-warm-200 dark:border-brand-warm-700 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
+                className="w-full pl-12 pr-4 py-3 bg-white/50 border border-brand-warm-200 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
             </div>
+            {!isLogin && <p className="text-[10px] text-brand-warm-400 ml-1">Max 72 characters</p>}
           </div>
 
           {!isLogin && (
@@ -178,7 +202,7 @@ const Login: React.FC = () => {
                   <input
                     type="text"
                     placeholder="HUB-XXXX-X"
-                    className="w-full pl-12 pr-4 py-3 bg-white border border-brand-warm-200 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
+                    className="w-full pl-12 pr-4 py-3 bg-white/50 border border-brand-warm-200 rounded-2xl focus:ring-2 focus:ring-brand-peach focus:border-transparent outline-none transition-all"
                     value={formData.invite_code}
                     onChange={(e) => setFormData({ ...formData, invite_code: e.target.value })}
                   />
@@ -202,11 +226,11 @@ const Login: React.FC = () => {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full btn-primary mt-4 flex items-center justify-center gap-2"
+            className="w-full btn-primary mt-4 py-4 rounded-2xl bg-gradient-to-r from-brand-peach to-orange-500 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
           >
             {loading ? <Loader2 className="animate-spin" /> : (
               <>
-                {isLogin ? 'Login' : 'Create Account'}
+                <span className="font-bold">{isLogin ? 'Login' : 'Create Account'}</span>
                 <ArrowRight size={18} />
               </>
             )}
@@ -216,9 +240,13 @@ const Login: React.FC = () => {
         <div className="mt-8 text-center">
           <button 
             onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-brand-warm-500 hover:text-brand-peach transition-colors"
+            className="text-sm text-brand-warm-500 hover:text-brand-peach font-medium transition-colors"
           >
-            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Login"}
+            {isLogin ? (
+              <span>Don't have an account? <span className="text-brand-peach font-bold">Sign up</span></span>
+            ) : (
+              <span>Already have an account? <span className="text-brand-peach font-bold">Login</span></span>
+            )}
           </button>
         </div>
       </motion.div>

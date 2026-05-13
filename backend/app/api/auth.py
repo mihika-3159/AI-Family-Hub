@@ -81,10 +81,14 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
         raise e
     except Exception as e:
         db.rollback()
-        print(f"Registration error: {str(e)}")
+        error_msg = str(e)
+        if "password cannot be longer than 72 bytes" in error_msg:
+            error_msg = "Password is too long (maximum 72 characters)."
+            
+        print(f"Registration error: {error_msg}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Registration failed: {str(e)}"
+            detail=error_msg if "Password is too long" in error_msg else f"Registration failed: {error_msg}"
         )
 
 @router.post("/login", response_model=Token)
