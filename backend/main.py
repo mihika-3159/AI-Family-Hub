@@ -1,8 +1,11 @@
+import sys
+import os
+# Ensure the backend directory is in the python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
-from app.api import auth, family, tasks, wellness, memories, activities, ai, notifications, export, medications
-from app.db.session import init_db
 
 settings = get_settings()
 
@@ -10,6 +13,15 @@ app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
 )
+
+# Debug health check (no DB dependency)
+@app.get("/api/health")
+def health_check():
+    return {"status": "ok", "message": "Backend is running", "python_version": sys.version}
+
+# Routes (Lazy load imports to avoid startup crash)
+from app.api import auth, family, tasks, wellness, memories, activities, ai, notifications, export, medications
+from app.db.session import init_db
 
 # Initialize Database (moved to lazy init in session.py)
 
