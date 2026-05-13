@@ -1,7 +1,14 @@
 import sys
 import os
-# Ensure the backend directory is in the python path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Robust path handling for Vercel
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+# Also add the parent directory just in case
+parent_dir = os.path.dirname(current_dir)
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
