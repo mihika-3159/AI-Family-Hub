@@ -8,19 +8,21 @@ import logging
 settings = get_settings()
 logger = logging.getLogger(__name__)
 
-# Configure Gemini
-if settings.GEMINI_API_KEY:
-    genai.configure(api_key=settings.GEMINI_API_KEY)
-else:
-    logger.warning("GEMINI_API_KEY not set. AI features will use fallbacks.")
-
 class AIService:
     def __init__(self):
         self.model_name = settings.GEMINI_MODEL
         self.rate_limiter = rate_limiter
+        self._configured = False
+
+    def _ensure_configured(self):
+        if not self._configured and settings.GEMINI_API_KEY:
+            genai.configure(api_key=settings.GEMINI_API_KEY)
+            self._configured = True
 
     async def _generate_content(self, prompt: str, system_instruction: str = SYSTEM_PROMPT) -> str:
         """Helper to generate content with rate limiting and fallbacks."""
+        self._ensure_configured()
+        
         if not settings.GEMINI_API_KEY:
             return "AI service is currently unavailable (API key missing). Please try again later."
 
@@ -37,7 +39,8 @@ class AIService:
             # Record request for rate limiting
             self.rate_limiter.record_request()
             
-            response = model.generate_content(prompt)
+            # Use async version of generate_content
+            response = await model.generate_content_async(prompt)
             return response.text
         except Exception as e:
             logger.error(f"Gemini API error: {str(e)}")
