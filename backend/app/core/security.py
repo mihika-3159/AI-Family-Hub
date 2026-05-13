@@ -57,5 +57,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     from app.models.user import User
     user = db.query(User).filter(User.id == int(user_id)).first()
     if user is None:
-        raise credentials_exception
+        print(f"Auth Failure: User ID {user_id} not found in database.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found. Your session may have been reset. Please log in again.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user
