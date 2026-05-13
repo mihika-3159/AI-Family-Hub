@@ -41,7 +41,9 @@ class AIService:
             return response.text
         except Exception as e:
             logger.error(f"Gemini API error: {str(e)}")
-            return "I'm having trouble connecting to my AI brain right now. Let me try again in a bit!"
+            import traceback
+            traceback.print_exc()
+            return f"AI Error: {str(e)}. Please check your GEMINI_API_KEY and logs."
 
     async def get_chore_suggestions(self, family_context: str, tasks: str, members: str) -> str:
         from app.templates.ai_prompts import CHORE_OPTIMIZATION_PROMPT
