@@ -31,19 +31,24 @@ class AIService:
             return f"The AI assistant is taking a short break. Please try again in {int(wait_time)} seconds."
 
         # Try primary model, fallback if not found
-        models_to_try = [self.model_name, "gemini-pro", "gemini-1.5-pro"]
+        models_to_try = [self.model_name, "gemini-1.5-flash-latest", "gemini-pro", "gemini-1.0-pro"]
         last_error = None
 
         for model_name in models_to_try:
             try:
-                model = genai.GenerativeModel(
-                    model_name=model_name,
-                    system_instruction=system_instruction
-                )
+                # Some environments/models have issues with system_instruction in GenerativeModel constructor
+                # We'll use a simpler initialization for now to isolate the 404 issue
+                model = genai.GenerativeModel(model_name=model_name)
+                
+                # Combine system prompt with user prompt for maximum compatibility
+                full_prompt = f"{system_instruction}\n\nUser Request: {prompt}"
                 
                 # Use async version of generate_content
-                response = await model.generate_content_async(prompt)
+                response = await model.generate_content_async(full_prompt)
                 
+                if not response or not response.text:
+                    continue
+
                 # Record successful request for rate limiting
                 self.rate_limiter.record_request()
                 return response.text
